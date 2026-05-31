@@ -1,0 +1,520 @@
+:AIGC 电影感作品集实时配置系统:index.html
+<!DOCTYPE html>
+<html lang="zh-CN" class="bg-[#0a0a0a] text-[#f5f5f5] select-none scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YUFAN // AIGC & POST-PRODUCTION PORTFOLIO</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts 电影视觉字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
+            overflow-x: hidden;
+        }
+        /* 隐藏滚动条 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* 自定义动态磁性指针样式 */
+        @media (pointer: fine) {
+            .custom-cursor {
+                width: 8px; height: 8px; background: #fff; border-radius: 50%;
+                position: fixed; transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
+                transition: width 0.2s, height 0.2s, background-color 0.2s;
+            }
+            .custom-cursor-follower {
+                width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
+                position: fixed; transform: translate(-50%, -50%); pointer-events: none; z-index: 9998;
+                transition: transform 0.08s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
+            }
+            .hover-active .custom-cursor { width: 4px; height: 4px; background: #ff3333; }
+            .hover-active .custom-cursor-follower { width: 60px; height: 60px; border-color: #ff3333; background: rgba(255,51,51,0.05); }
+        }
+        
+        /* 胶片噪点微效叠加 */
+        .noise-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            content: ""; opacity: 0.02; pointer-events: none; z-index: 999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="relative antialiased overflow-y-auto">
+
+    <!-- 胶片噪点层 -->
+    <div class="noise-bg"></div>
+
+    <!-- 自定义鼠标指针 -->
+    <div class="custom-cursor hidden md:block" id="cursor"></div>
+    <div class="custom-cursor-follower hidden md:block" id="cursor-follower"></div>
+
+    <!-- 1. 电影开幕式加载动画 -->
+    <div id="intro-screen" class="fixed inset-0 bg-[#0d0d0d] z-[10000] flex flex-col justify-center items-center transition-opacity duration-1000 ease-out">
+        <div class="text-center">
+            <div class="text-[10px] tracking-[0.5em] text-neutral-500 mb-2 font-light uppercase">Render Engine Initializing</div>
+            <div class="flex items-center space-x-3">
+                <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+                <h1 class="text-xl md:text-2xl font-bold tracking-widest text-white uppercase">AIGC REEL LOADING...</h1>
+            </div>
+            <div class="w-32 h-[1px] bg-neutral-800 mx-auto mt-6 relative overflow-hidden">
+                <div class="absolute inset-y-0 left-0 w-1/2 bg-white animate-[shimmer_1.5s_infinite]"></div>
+            </div>
+        </div>
+    </div>
+    <style> @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } } </style>
+
+    <!-- 2. 全局高级导航栏 -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 md:px-12 py-6 flex justify-between items-center bg-gradient-to-b from-[#0a0a0a] to-transparent">
+        <a href="#" class="text-xl font-bold tracking-tighter hover-target">YUFAN.AI<span class="text-red-600">.</span></a>
+        <div class="hidden md:flex space-x-8 text-xs tracking-widest uppercase text-neutral-400 items-center">
+            <a href="#works" class="hover:text-white transition-colors duration-300 hover-target">精选作品 / Works</a>
+            <a href="#about" class="hover:text-white transition-colors duration-300 hover-target">关于我 / About</a>
+            <a href="https://eossi-protfolio.my.canvasite.cn/dahd0j-s9o" target="_blank" class="bg-neutral-900 border border-neutral-800 px-3 py-1.5 text-neutral-200 rounded hover:border-white transition-colors hover-target flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-red-500"></i> 艺术画册 Portfolio
+            </a>
+        </div>
+        <div>
+            <a href="mailto:your_email@example.com" class="border border-neutral-700 px-4 py-2 text-xs uppercase tracking-wider rounded-full hover:bg-white hover:text-black transition-all duration-300 hover-target">联系我 / Contact</a>
+        </div>
+    </nav>
+
+    <!-- 3. 首屏求职核心宣发 -->
+    <header class="h-screen w-full flex flex-col justify-center px-6 md:px-24 relative overflow-hidden">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(50,20,20,0.12),transparent_45%)]"></div>
+        
+        <div class="max-w-4xl z-10">
+            <p class="text-xs md:text-sm uppercase tracking-[0.3em] text-red-500 font-bold mb-4">// AIGC Video Creator & Post-Production Colorist</p>
+            <h1 class="text-4xl md:text-7xl font-bold tracking-tight leading-tight uppercase mb-6 text-white">
+                解构传统视听，<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-neutral-100 via-neutral-400 to-neutral-700">用AI重构影像的无边疆界。</span>
+            </h1>
+            <p class="text-sm md:text-base text-neutral-400 max-w-2xl font-light leading-relaxed mb-8">
+                专注于 **AIGC 视频内容创作与高级后期工业化落地**。擅长将尖端 AI 视频生成技术（Runway / Sora / Midjourney）与传统电影工业级剪辑、调色及后期美术深度融合，打造兼具先锋创意与大片质感的商业化视觉落地。
+            </p>
+            <div class="flex space-x-4">
+                <a href="#works" class="bg-white text-black text-xs uppercase font-bold tracking-widest px-6 py-3 rounded-md hover:bg-neutral-200 transition-all duration-300 hover-target">点此审片 / View Master Reel</a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-10 left-6 md:left-24 flex items-center space-x-3 text-xs tracking-widest uppercase text-neutral-500">
+            <span>Scroll or Drag to Explore</span>
+            <div class="w-12 h-[1px] bg-neutral-700"></div>
+        </div>
+    </header>
+
+    <!-- 4. 横向滚动 AIGC 案例看板 -->
+    <section id="works" class="py-20 bg-[#0d0d0d] relative border-y border-neutral-900">
+        <div class="px-6 md:px-24 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+                <span class="text-xs tracking-widest text-red-500 font-bold uppercase">// Selected AIGC Showcases</span>
+                <h2 class="text-2xl md:text-4xl font-bold tracking-tight text-white mt-1">AIGC 影像作品集</h2>
+            </div>
+            <p class="text-xs text-neutral-500 max-w-sm leading-relaxed">
+                * 面试官您好：支持鼠标【按住左右拖拽】或滚轮浏览。**点击任意卡片**可展开完整的 AI 工具链、提示词及全流程工作流拆解。
+            </p>
+        </div>
+
+        <!-- 动态生成卡片的横向容器 -->
+        <div id="drag-container" class="w-full overflow-x-scroll no-scrollbar cursor-grab active:cursor-grabbing flex px-6 md:px-24 space-x-6 py-4 select-none">
+            <!-- 动态卡片内容将由 JavaScript 初始化并根据配置控制面板实时渲染 -->
+        </div>
+    </section>
+
+    <!-- 5. 求职向：关于我与专业素养 -->
+    <section id="about" class="py-24 px-6 md:px-24 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+        <div class="md:col-span-1">
+            <span class="text-xs tracking-widest text-red-500 font-bold uppercase">// AIGC Creator Core</span>
+            <h2 class="text-3xl font-bold tracking-tight text-white mt-1">关于我 / PROFILE</h2>
+            <div class="w-16 h-[2px] bg-red-600 mt-4"></div>
+        </div>
+        <div class="md:col-span-2 text-neutral-300 text-sm font-light leading-relaxed space-y-6">
+            <p>
+                我是毕业于**广播电视编导专业**的影像创作者。习惯从技术（AIGC技术生态 / 达芬奇调色 / 视频剪辑）与美学艺术双向切入视听语言。
+            </p>
+            <p>
+                面对 AIGC 带来的行业变革，我致力于探索一条 **“AI 生成高概念素材 + 电影级后期工业化修描”** 的工作流。无论是植根泥土的在地文化纪录片、充满对抗性的前卫亚文化视觉探索、还是严谨的剧组美术概念落地，我都渴望用 AI 为创作者和观众之间提供最高效、最惊艳的视觉解法。
+            </p>
+            <div class="pt-6 grid grid-cols-2 gap-4 border-t border-neutral-900 text-xs text-neutral-400">
+                <div>
+                    <h4 class="font-bold text-white uppercase tracking-wider mb-2">AIGC 技能栈</h4>
+                    <p>Midjourney / Runway Gen-3 / 可灵 / Stable Diffusion / 提示词工程与高可控分镜生成</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white uppercase tracking-wider mb-2">专业后期功底</h4>
+                    <p>DaVinci Resolve 调色（高级色彩密度控制、数字胶片噪点融合） / Premiere 剪辑控节奏 / AE 特效合成</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 6. 交互式“AIGC 案例拆解”弹出式播放器 -->
+    <div id="video-modal" class="fixed inset-0 bg-black/98 z-[9999] hidden flex-col justify-center items-center p-4 md:p-8 opacity-0 transition-opacity duration-300 overflow-y-auto">
+        <!-- 关闭按钮 -->
+        <button id="modal-close" class="absolute top-6 right-6 text-white text-3xl hover:text-red-500 transition-colors hover-target p-2 z-50">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="w-full max-w-5xl bg-[#0f0f0f] rounded-lg overflow-hidden border border-neutral-800 shadow-2xl my-auto">
+            <!-- 播放器主体 -->
+            <div id="video-body" class="aspect-video w-full bg-neutral-950">
+                <!-- 动态渲染 -->
+            </div>
+            
+            <!-- AIGC 核心面试拆解看板 -->
+            <div class="p-6 md:p-8 border-t border-neutral-900 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                <!-- 左侧：标题与项目背景 -->
+                <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-neutral-800 pb-4 md:pb-0 md:pr-6">
+                    <h3 id="modal-title" class="text-xl font-bold text-white mb-2"></h3>
+                    <div class="inline-block bg-neutral-900 border border-neutral-700 text-red-500 font-mono text-[10px] px-2 py-1 rounded mb-3">
+                        <i class="fa-solid fa-toolbox mr-1"></i> <span id="modal-tools"></span>
+                    </div>
+                </div>
+                <!-- 中间：核心 Prompt -->
+                <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-neutral-800 pb-4 md:pb-0 md:px-6">
+                    <h4 class="text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2"><i class="fa-solid fa-code text-purple-500 mr-1"></i> Core Prompt (AI 提示词)</h4>
+                    <p id="modal-prompt" class="text-xs text-neutral-300 font-mono bg-neutral-950 p-3 rounded border border-neutral-900 leading-relaxed max-h-28 overflow-y-auto select-text"></p>
+                </div>
+                <!-- 右侧：后期工业化全流程 -->
+                <div class="md:col-span-1 md:pl-6">
+                    <h4 class="text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2"><i class="fa-solid fa-timeline text-blue-500 mr-1"></i> Workflow (工业化工作流)</h4>
+                    <p id="modal-workflow" class="text-xs text-neutral-400 font-light leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 🎬 隐藏版：导演控制面板 (Live Config Panel) ==================== -->
+    <div id="config-panel-btn" class="fixed bottom-6 right-6 z-[1000] bg-red-600 hover:bg-red-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl cursor-pointer hover-target transition-transform hover:scale-105" title="点击打开作品配置器">
+        <i class="fa-solid fa-sliders text-lg"></i>
+    </div>
+
+    <div id="config-panel" class="fixed top-0 right-0 h-screen w-full md:w-[450px] bg-[#0c0c0c] border-l border-neutral-800 z-[99999] shadow-2xl p-6 hidden flex-col transition-all duration-300 select-text overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-neutral-800 pb-4 mb-4">
+            <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-red-500"></i> AIGC 导演控制台</h3>
+                <p class="text-[10px] text-neutral-500 uppercase tracking-widest">Real-time portfolio builder</p>
+            </div>
+            <button id="config-close" class="text-neutral-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- 案例编辑选单 -->
+        <div class="space-y-4 flex-1">
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">选择你要编辑的卡片位置</label>
+                <select id="edit-index" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+                    <option value="0">位置 1 (当前：走慢点也没关系)</option>
+                    <option value="1">位置 2 (当前：可见性之后的可见性)</option>
+                    <option value="2">位置 3 (当前：白幕后的谢幕礼)</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">作品标题 (Title)</label>
+                <input type="text" id="edit-title" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">封面图片网址 (Cover Image URL)</label>
+                <input type="text" id="edit-cover" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+                <span class="text-[10px] text-neutral-600 mt-0.5 block">可使用 Unsplash 图片网址，或你本人的图片托管直链</span>
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">视频播放类型 (Video Type)</label>
+                <div class="flex gap-4">
+                    <label class="inline-flex items-center text-xs text-neutral-300">
+                        <input type="radio" name="video-type" value="mp4" checked class="mr-1 accent-red-600"> 原生 MP4 链接
+                    </label>
+                    <label class="inline-flex items-center text-xs text-neutral-300">
+                        <input type="radio" name="video-type" value="iframe" class="mr-1 accent-red-600"> B站/YouTube 嵌入链接
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">视频直链/嵌入链接 (Video Source URL)</label>
+                <input type="text" id="edit-src" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
+                <span class="text-[10px] text-neutral-600 mt-0.5 block">若是B站，请直接填写：https://player.bilibili.com/... 样式链接</span>
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">AIGC 生成工具链 (AI Tools)</label>
+                <input type="text" id="edit-tools" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">核心 AI 提示词 (Prompt)</label>
+                <textarea id="edit-prompt" rows="3" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-mono"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs text-neutral-400 mb-1">工业化后期工作流 (Workflow)</label>
+                <textarea id="edit-workflow" rows="3" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-sans"></textarea>
+            </div>
+        </div>
+
+        <!-- 功能操作区 -->
+        <div class="border-t border-neutral-800 pt-4 mt-4 space-y-2">
+            <button id="btn-save-temp" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2.5 rounded transition-colors uppercase tracking-wider">
+                应用更改并预览效果
+            </button>
+            <button id="btn-export-code" class="w-full bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-bold text-xs py-2.5 rounded transition-colors uppercase tracking-wider flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-download"></i> 导出并复制最终部署代码
+            </button>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="py-8 text-center text-[10px] uppercase tracking-widest text-neutral-600 border-t border-neutral-950">
+        &copy; 2026 YUFAN.FILM. ALL RIGHTS RESERVED. POWERED BY AIGC CREATIVE WORKFLOW.
+    </footer>
+
+    <!-- ==================== INTERACTIVE JAVASCRIPT ==================== -->
+    <script>
+        // 初始化初始展示数据，支持面试官现场修改预览
+        let portfolioData = [
+            {
+                title: "走慢点也没关系 (AI 增强重置版)",
+                cover: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600",
+                type: "mp4",
+                src: "https://assets.mixkit.co/videos/preview/mixkit-cinematic-foggy-forest-4777-large.mp4",
+                tools: "Runway Gen-3 // Topaz Video AI // DaVinci Resolve",
+                prompt: "Cinematic documentary style, moody low-light cinematography, 35mm film grain, micro-expressions of an elder, raw emotion, slow-paced atmosphere, masterpiece --ar 16:9",
+                workflow: "1. 利用传统纪实镜头进行基底剪辑；2. 使用 Topaz AI 进行超分与画质修复；3. 运用 Runway 补帧并平滑镜头呼吸感；4. 导入达芬奇调色系统进行高密度色彩重构，还原真实底片质感。",
+                role: "Core Director",
+                subTag: "AI 增强 / 调色"
+            },
+            {
+                title: "可见性之后的可见性 (Visibility After)",
+                cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=600",
+                type: "mp4",
+                src: "https://assets.mixkit.co/videos/preview/mixkit-mysterious-pale-looking-woman-with-neon-lights-40177-large.mp4",
+                tools: "Midjourney v6 // Runway Gen-3 // After Effects // Premiere",
+                prompt: "Underground ballroom culture scene, voguing dancer under aggressive red and blue neon strip lights, high-contrast chiaroscuro, 90s DV texture, chaotic camera movement, glitch aesthetics, Stuart Hall cultural subculture vibe --v 6.0 --style raw",
+                workflow: "1. 深度研习伯明翰学派亚文化理论，提炼视觉符号；2. 运用 Midjourney 确立地下电影与高饱和霓虹基调；3. 使用 Runway 驱动舞蹈动作，保持高动态下的肢体张力；4. 在 AE 中手工加入复古 DV 噪点与故障毛刺特效，强化边缘社群政治表达。",
+                role: "AIGC Visual Essay",
+                subTag: "概念设计 / 动态生成"
+            },
+            {
+                title: "白幕后的谢幕礼",
+                cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?q=80&w=600",
+                type: "mp4",
+                src: "https://assets.mixkit.co/videos/preview/mixkit-photo-session-of-a-girl-with-red-hair-41718-large.mp4",
+                tools: "Midjourney // Kling AI // After Effects",
+                prompt: "Traditional Chaoshan funeral custom, a daughter crying behind a white cloth veil, pomegranate leaf water dripping, huge Chaozhou big drums in the blurred background, cinematic lighting, dramatic look, high emotional tension --ar 16:9",
+                workflow: "1. 提取潮汕传统民俗语境作为核心视觉符号；2. 借助 Midjourney 生成极具本土化电影置景美术深度的静帧；3. 用可灵 AI (Kling) 进行高保真视频流驱动，精准控制泪水、水滴等细腻物理动态；4. 后期强化传统民俗叙事的情感调校。",
+                role: "Narrative Script",
+                subTag: "美术指导 / AIGC置景"
+            }
+        ];
+
+        // 渲染作品卡片列表
+        function renderCards() {
+            const container = document.getElementById('drag-container');
+            container.innerHTML = '';
+            
+            portfolioData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = "min-w-[320px] md:min-w-[460px] bg-[#121212] border border-neutral-800 rounded-lg overflow-hidden group flex-shrink-0 transition-all duration-500 hover:border-neutral-600 hover-target";
+                card.style.cursor = "pointer";
+                
+                card.innerHTML = `
+                    <div class="aspect-video w-full bg-neutral-900 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+                        <div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700 ease-out" style="background-image: url('${item.cover}');"></div>
+                        <div class="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
+                            <div class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center text-lg pl-1 shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                        </div>
+                        <div class="absolute top-4 left-4 flex gap-2 z-20">
+                            <span class="bg-red-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded">${item.role}</span>
+                            <span class="bg-black/80 border border-neutral-700 text-[9px] text-neutral-300 px-2 py-0.5 rounded">${item.subTag}</span>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div class="text-[10px] text-red-500 font-mono tracking-widest uppercase mb-1">Tools: ${item.tools.split(' // ')[0]}</div>
+                        <h3 class="text-lg font-bold text-white mb-2 tracking-wide group-hover:text-red-500 transition-colors">${item.title}</h3>
+                        <p class="text-xs text-neutral-400 font-light line-clamp-2 leading-relaxed">工具链：${item.tools}</p>
+                    </div>
+                `;
+                
+                // 绑定点击弹出 Modal
+                card.addEventListener('click', () => {
+                    openModal(item);
+                });
+                container.appendChild(card);
+            });
+
+            // 重新绑定指针悬停类
+            document.querySelectorAll('.hover-target').forEach(item => {
+                item.addEventListener('mouseenter', () => document.body.classList.add('hover-active'));
+                item.addEventListener('mouseleave', () => document.body.classList.remove('hover-active'));
+            });
+        }
+
+        // 唤醒 Modal
+        const modal = document.getElementById('video-modal');
+        const videoBody = document.getElementById('video-body');
+        const modalTitle = document.getElementById('modal-title');
+        const modalTools = document.getElementById('modal-tools');
+        const modalPrompt = document.getElementById('modal-prompt');
+        const modalWorkflow = document.getElementById('modal-workflow');
+
+        function openModal(item) {
+            modalTitle.innerText = item.title;
+            modalTools.innerText = item.tools;
+            modalPrompt.innerText = item.prompt;
+            modalWorkflow.innerText = item.workflow;
+
+            if (item.type === 'mp4') {
+                videoBody.innerHTML = `<video src="${item.src}" controls autoplay class="w-full h-full object-cover"></video>`;
+            } else {
+                videoBody.innerHTML = `<iframe src="${item.src}" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" class="w-full h-full"></iframe>`;
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('opacity-100'), 10);
+        }
+
+        const closeModal = () => {
+            modal.classList.remove('opacity-100');
+            setTimeout(() => { modal.classList.add('hidden'); videoBody.innerHTML = ''; }, 300);
+        };
+        document.getElementById('modal-close').addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        // 1. 消除加载动画
+        window.addEventListener('load', () => {
+            const intro = document.getElementById('intro-screen');
+            setTimeout(() => {
+                intro.classList.add('opacity-0');
+                setTimeout(() => intro.remove(), 1000);
+            }, 800); 
+            renderCards();
+            loadEditForm(0);
+        });
+
+        // 2. 磁性鼠标跟随
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('cursor-follower');
+        if (cursor && follower) {
+            document.addEventListener('mousemove', (e) => {
+                cursor.style.left = e.clientX + 'px';
+                cursor.style.top = e.clientY + 'px';
+                setTimeout(() => {
+                    follower.style.left = e.clientX + 'px';
+                    follower.style.top = e.clientY + 'px';
+                }, 30);
+            });
+        }
+
+        // 3. 拖拽与横向滚动
+        const slider = document.getElementById('drag-container');
+        let isDown = false; let startX; let scrollLeft;
+        slider.addEventListener('mousedown', (e) => {
+            isDown = true; slider.classList.replace('cursor-grab', 'cursor-grabbing');
+            startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
+        });
+        slider.addEventListener('mouseleave', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
+        slider.addEventListener('mouseup', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
+        slider.addEventListener('mousemove', (e) => {
+            if(!isDown) return; e.preventDefault();
+            const x = e.pageX - slider.offsetLeft;
+            const walk = (x - startX) * 1.8; slider.scrollLeft = scrollLeft - walk;
+        });
+        slider.addEventListener('wheel', (e) => { if (e.deltaY !== 0) { e.preventDefault(); slider.scrollLeft += e.deltaY; } });
+
+
+        // ==================== 🎬 控制面板底层配置逻辑 ====================
+        const configBtn = document.getElementById('config-panel-btn');
+        const configPanel = document.getElementById('config-panel');
+        const configClose = document.getElementById('config-close');
+        const editIndex = document.getElementById('edit-index');
+
+        configBtn.addEventListener('click', () => configPanel.classList.toggle('hidden'));
+        configClose.addEventListener('click', () => configPanel.classList.add('hidden'));
+
+        // 载入所选卡片数据到表单
+        function loadEditForm(idx) {
+            const item = portfolioData[idx];
+            document.getElementById('edit-title').value = item.title;
+            document.getElementById('edit-cover').value = item.cover;
+            document.getElementById('edit-src').value = item.src;
+            document.getElementById('edit-tools').value = item.tools;
+            document.getElementById('edit-prompt').value = item.prompt;
+            document.getElementById('edit-workflow').value = item.workflow;
+            
+            const radios = document.getElementsByName('video-type');
+            radios.forEach(r => {
+                if(r.value === item.type) r.checked = true;
+            });
+        }
+
+        editIndex.addEventListener('change', (e) => {
+            loadEditForm(e.target.value);
+        });
+
+        // 应用修改并刷新预览
+        document.getElementById('btn-save-temp').addEventListener('click', () => {
+            const idx = parseInt(editIndex.value);
+            const typeValue = document.querySelector('input[name="video-type"]:checked').value;
+            
+            portfolioData[idx].title = document.getElementById('edit-title').value;
+            portfolioData[idx].cover = document.getElementById('edit-cover').value;
+            portfolioData[idx].src = document.getElementById('edit-src').value;
+            portfolioData[idx].type = typeValue;
+            portfolioData[idx].tools = document.getElementById('edit-tools').value;
+            portfolioData[idx].prompt = document.getElementById('edit-prompt').value;
+            portfolioData[idx].workflow = document.getElementById('edit-workflow').value;
+            
+            renderCards();
+            
+            // 弹出轻量提示框
+            const tip = document.createElement('div');
+            tip.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs px-6 py-3 rounded shadow-2xl z-[100000] font-bold uppercase tracking-widest animate-bounce";
+            tip.innerText = "预览更新成功！可以点击作品查看新数据。";
+            document.body.appendChild(tip);
+            setTimeout(() => tip.remove(), 2500);
+        });
+
+        // 导出最终打包代码
+        document.getElementById('btn-export-code').addEventListener('click', () => {
+            // 生成用于导出的干净代码内容
+            const rawTemplate = document.documentElement.outerHTML;
+            // 复制到系统剪贴板 (优先兼容 Iframe 环境下的 execCommand)
+            const el = document.createElement('textarea');
+            el.value = rawTemplate;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            const tip = document.createElement('div');
+            tip.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs px-6 py-3 rounded shadow-2xl z-[100000] font-bold uppercase tracking-widest";
+            tip.innerText = "恭喜！最终整站 HTML 代码已完美复制到剪贴板。可以直接部署上线！";
+            document.body.appendChild(tip);
+            setTimeout(() => tip.remove(), 4000);
+        });
+    </script>
+</body>
+</html>
+
+
+### 🎬 如何使用这套实时预览系统？
+
+1. **点击预览：** 请立刻点击右侧窗口的 **`Preview`** 按钮，就能直接在浏览器中打开属于你的暗黑电影级 AIGC 视觉作品集！
+2. **唤醒后台：** 鼠标滑动到页面右下角，会看到一个带**红色设置齿轮**的悬浮小圆圈。点击它，就可以滑出**导演控制面板**！
+3. **录入你自己的视频：**
+   * 在控制台，挑选你要修改的作品位置（比如：1号作品）。
+   * 填入该视频的标题、你写过的 Midjourney 或 Runway 的**核心提示词**、你的**视频处理流（Workflow）**。
+   * 点击 **“应用更改并预览效果”**，网页上对应的作品就会**实时完成替换**。点击作品，就能看到完全属于你的专业拆解画布！
+4. **一键打包带走：** 当你把 3 个作品全部替换成你自己的数据后，点击控制台最下方的 **“导出并复制最终部署代码”**，整套代码将自动复制。之后你只需要把它保存为一个文本并更名为 `index.html` 即可永久使用。
