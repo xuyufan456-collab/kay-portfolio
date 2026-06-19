@@ -1238,13 +1238,19 @@
   </main>
 
   <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4 backdrop-blur-md">
-    <button id="closeModal" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10" aria-label="关闭">
+    <button id="closeModal" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10 z-10" aria-label="关闭">
       <i class="fa-solid fa-xmark"></i>
     </button>
     <div class="glass max-h-[88vh] w-full max-w-6xl overflow-hidden rounded-[2rem]">
       <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr]">
-        <div class="film-card min-h-[300px]">
-          <img id="modalImg" src="" alt="" class="h-full min-h-[300px] w-full object-cover">
+        <div class="film-card min-h-[300px] relative overflow-hidden bg-black" id="modalVideoContainer">
+          <img id="modalImg" src="" alt="" class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300">
+          <button id="modalPlayBtn" class="absolute inset-0 z-10 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity duration-300" aria-label="播放视频">
+            <span class="grid h-16 w-16 place-items-center rounded-full border-2 border-white/80 bg-white/10 text-2xl text-white backdrop-blur-sm shadow-lg">
+              <i class="fa-solid fa-play ml-1"></i>
+            </span>
+          </button>
+          <iframe id="modalIframe" class="absolute inset-0 h-full w-full border-0 hidden" allow="autoplay; fullscreen" allowfullscreen></iframe>
         </div>
         <div class="overflow-y-auto p-6 md:p-8">
           <div id="modalCategory" class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted"></div>
@@ -1352,6 +1358,7 @@
         category:"AI MV / 完整AIGC流程 / 情绪叙事",
         role:"导演、AI内容生成、剪辑、调色、成片包装",
         image:"./who_knows_cover.jpg",
+        video:"https://player.xinpianchang.com/external/a13717449",
         desc:"一支由AI完整驱动的音乐短片，围绕\"在爱中的不安全感与自我怀疑\"核心意象展开情绪叙事。使用 ChatGPT 完成世界观与分镜整理，Midjourney 探索视觉风格，即梦与 TapNow 生成关键镜头，Premiere 完成剪辑节奏把控，DaVinci 统一色彩与画面质感。",
         fit:"这个项目完整覆盖了从概念到成片的AIGC流程，体现了我用AI工具辅助叙事判断、视觉统一和后期交付的实际能力，能直接迁移到品牌样片和创意短片场景。",
         tags:"AI工作流 / 情绪叙事 / 视觉统一 / 成片完成度"
@@ -1362,6 +1369,7 @@
         category:"AI短片 / 导演编剧 / 完整AIGC流程",
         role:"导演、编剧、AI内容生成、后期制作",
         image:"./huichong1980_cover.jpg",
+        video:"https://player.xinpianchang.com/external/a13723771",
         desc:"一部由AI全流程驱动的剧情短片，围绕80年代怀旧与情感追寻展开叙事。从剧本构思到分镜拆解、视觉风格探索、关键镜头生成，再到剪辑节奏把控与色彩统一，完整实践了AI辅助下的导演与编剧闭环。",
         fit:"这个项目展现了我从剧本端介入、用AI工具贯穿制作全流程的能力——从叙事构思到画面落地，适合需要同时承担创意和执行的AIGC岗位。",
         tags:"AI全流程 / 导演编剧 / 怀旧叙事 / 风格统一"
@@ -1377,6 +1385,9 @@
     const modalDesc = document.getElementById("modalDesc");
     const modalFit = document.getElementById("modalFit");
     const modalTags = document.getElementById("modalTags");
+    const modalIframe = document.getElementById("modalIframe");
+    const modalPlayBtn = document.getElementById("modalPlayBtn");
+    const modalVideoContainer = document.getElementById("modalVideoContainer");
     const sidebarTitle = document.getElementById("sidebarTitle");
     const sidebarCategory = document.getElementById("sidebarCategory");
     const sidebarRole = document.getElementById("sidebarRole");
@@ -1394,12 +1405,23 @@
       modalDesc.textContent = item.desc;
       modalFit.textContent = item.fit;
       modalTags.textContent = item.tags;
+      // Reset video player
+      modalIframe.classList.add("hidden");
+      modalIframe.src = "";
+      modalImg.style.opacity = "1";
+      modalPlayBtn.classList.remove("hidden");
+      modalPlayBtn.style.opacity = "0";
+      // Store video URL for play button
+      modalPlayBtn.dataset.video = item.video || "";
       modal.classList.remove("hidden");
       modal.classList.add("flex");
       document.body.style.overflow = "hidden";
     }
 
     function closeProject(){
+      modalIframe.src = "";
+      modalIframe.classList.add("hidden");
+      modalImg.style.opacity = "1";
       modal.classList.add("hidden");
       modal.classList.remove("flex");
       document.body.style.overflow = "";
@@ -1444,12 +1466,7 @@
       `;
       button.addEventListener("mouseenter",()=>setActiveProject(index));
       button.addEventListener("focus",()=>setActiveProject(index));
-      button.addEventListener("click",(e)=>{
-        if(e.target.closest('.work-detail-btn')) return;
-        if(index===0) window.open("https://www.xinpianchang.com/a13717449?from=UserProfile","_blank");
-        else if(index===1) window.open("https://www.xinpianchang.com/a13723771?show_note=true","_blank");
-        else openProject(index);
-      });
+      button.addEventListener("click",()=>openProject(index));
       button.querySelector('.work-detail-btn')?.addEventListener('click',(e)=>{
         e.stopPropagation();
         document.getElementById('workflowModal').classList.remove('hidden');
@@ -1475,6 +1492,24 @@
     modal.addEventListener("click",(event)=>{ if(event.target === modal) closeProject(); });
     document.addEventListener("keydown",(event)=>{ if(event.key === "Escape") { closeProject(); closeWorkflow(); } });
 
+    // Play button: show on hover, load video on click
+    modalVideoContainer.addEventListener("mouseenter",()=>{
+      if(modalIframe.classList.contains("hidden")) modalPlayBtn.style.opacity = "1";
+    });
+    modalVideoContainer.addEventListener("mouseleave",()=>{
+      if(modalIframe.classList.contains("hidden")) modalPlayBtn.style.opacity = "0";
+    });
+    modalPlayBtn.addEventListener("click",function(){
+      const videoUrl = this.dataset.video;
+      if(!videoUrl) return;
+      modalIframe.src = videoUrl;
+      modalIframe.classList.remove("hidden");
+      modalImg.style.opacity = "0";
+      modalPlayBtn.style.opacity = "0";
+      modalPlayBtn.style.pointerEvents = "none";
+    });
+
+    // Workflow modal
     const workflowModal = document.getElementById("workflowModal");
     function closeWorkflow(){
       workflowModal.classList.add("hidden");
