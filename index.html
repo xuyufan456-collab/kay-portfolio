@@ -1,520 +1,1632 @@
-:AIGC 电影感作品集实时配置系统:index.html
 <!DOCTYPE html>
-<html lang="zh-CN" class="bg-[#0a0a0a] text-[#f5f5f5] select-none scroll-smooth">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YUFAN // AIGC & POST-PRODUCTION PORTFOLIO</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome 图标库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts 电影视觉字体 -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;700&display=swap" rel="stylesheet">
-
-    <style>
-        body {
-            font-family: 'Space Grotesk', 'Noto Sans SC', sans-serif;
-            overflow-x: hidden;
-        }
-        /* 隐藏滚动条 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* 自定义动态磁性指针样式 */
-        @media (pointer: fine) {
-            .custom-cursor {
-                width: 8px; height: 8px; background: #fff; border-radius: 50%;
-                position: fixed; transform: translate(-50%, -50%); pointer-events: none; z-index: 9999;
-                transition: width 0.2s, height 0.2s, background-color 0.2s;
-            }
-            .custom-cursor-follower {
-                width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.3); border-radius: 50%;
-                position: fixed; transform: translate(-50%, -50%); pointer-events: none; z-index: 9998;
-                transition: transform 0.08s ease-out, width 0.3s, height 0.3s, border-color 0.3s;
-            }
-            .hover-active .custom-cursor { width: 4px; height: 4px; background: #ff3333; }
-            .hover-active .custom-cursor-follower { width: 60px; height: 60px; border-color: #ff3333; background: rgba(255,51,51,0.05); }
-        }
-        
-        /* 胶片噪点微效叠加 */
-        .noise-bg {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            content: ""; opacity: 0.02; pointer-events: none; z-index: 999;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>许宇帆 | AIGC视频作品集</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+SC:wght@400;500;700;900&family=Noto+Serif+SC:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#040507;
+      --bg-soft:#0b0d11;
+      --panel:rgba(8,10,14,.54);
+      --panel-strong:rgba(7,9,13,.7);
+      --line:rgba(255,255,255,.14);
+      --line-strong:rgba(255,244,214,.3);
+      --text:#f4f1ea;
+      --muted:#d1cbc0;
+      --sand:#f3dfb2;
+      --cyan:#b8e7ff;
+      --red:#ff8d68;
+      --lime:#d8ffb0;
+      --shadow:0 24px 80px rgba(0,0,0,.42);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth;background:var(--bg)}
+    body{
+      position:relative;
+      margin:0;
+      color:var(--text);
+      font-family:"Noto Sans SC",sans-serif;
+      background:transparent;
+      overflow-x:hidden;
+    }
+    .video-stage{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .video-bg{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center center;
+      transform:scale(1.04) translateZ(0);
+      filter:saturate(1) contrast(1.04) brightness(.9);
+      will-change:transform, filter;
+      contain:layout paint style;
+    }
+    .video-scrim,
+    .video-stage::before,
+    .video-stage::after{
+      position:absolute;
+      inset:0;
+      content:"";
+      pointer-events:none;
+    }
+    .video-scrim{
+      background:
+        linear-gradient(180deg, rgba(2,4,8,.06) 0%, rgba(2,4,8,.08) 16%, rgba(4,7,12,.16) 54%, rgba(1,2,5,.28) 100%),
+        radial-gradient(circle at 20% 20%, rgba(255,225,160,.04), transparent 28%),
+        radial-gradient(circle at 78% 16%, rgba(255,255,255,.04), transparent 22%);
+      backdrop-filter:none;
+    }
+    .video-stage::before{
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.04), transparent 18%, transparent 82%, rgba(255,255,255,.025)),
+        radial-gradient(circle at 50% calc(22% + var(--scroll-depth, 0) * 22%), rgba(255,244,214,.12), transparent 22%);
+      opacity:.9;
+    }
+    .video-stage::after{display:none}
+    .space-vignette{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 50% calc(16% + var(--scroll-depth, 0) * 18%), transparent 0 18%, rgba(0,0,0,.08) 36%, rgba(0,0,0,.2) 76%, rgba(0,0,0,.42) 100%);
+      opacity:calc(.12 + var(--scroll-depth, 0) * .08);
+    }
+    .space-stars,
+    .space-rings{
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+    }
+    .space-stars{
+      z-index:1;
+      background-image:
+        radial-gradient(circle at 12% 20%, rgba(255,255,255,.55) 0 1px, transparent 1.6px),
+        radial-gradient(circle at 24% 64%, rgba(255,233,188,.34) 0 1.2px, transparent 1.9px),
+        radial-gradient(circle at 78% 18%, rgba(255,255,255,.4) 0 1.2px, transparent 1.8px),
+        radial-gradient(circle at 82% 70%, rgba(255,244,214,.26) 0 1px, transparent 1.7px);
+      background-size:280px 280px, 380px 380px, 460px 460px, 620px 620px;
+      opacity:calc(.06 + var(--scroll-depth, 0) * .08);
+      transform:translateY(calc(var(--scroll-depth, 0) * -10vh)) scale(calc(1 + var(--scroll-depth, 0) * .12));
+    }
+    .space-rings{
+      z-index:2;
+      overflow:hidden;
+    }
+    .space-rings::before,
+    .space-rings::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:18%;
+      width:140vmax;
+      height:140vmax;
+      border-radius:50%;
+      transform-origin:center;
+      will-change:transform, opacity, filter;
+    }
+    .space-rings::before{
+      border:1px solid rgba(255,244,214,.12);
+      box-shadow:
+        0 0 48px rgba(255,244,214,.08),
+        inset 0 0 52px rgba(255,244,214,.05);
+      transform:
+        translate(-50%,-50%)
+        scale(calc(.16 + var(--scroll-depth, 0) * 1.26))
+        rotate(calc(var(--scroll-depth, 0) * 180deg));
+      opacity:calc(.08 + var(--scroll-depth, 0) * .14);
+      filter:blur(calc(0px + var(--scroll-depth, 0) * 1.2px));
+    }
+    .space-rings::after{
+      width:95vmax;
+      height:95vmax;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow:
+        0 0 56px rgba(255,255,255,.04),
+        inset 0 0 30px rgba(255,255,255,.05);
+      transform:
+        translate(-50%,-50%)
+        scale(calc(.1 + var(--scroll-depth, 0) * 1.06))
+        rotate(calc(-28deg - var(--scroll-depth, 0) * 260deg));
+      opacity:calc(.05 + var(--scroll-depth, 0) * .08);
+      filter:blur(calc(0px + var(--scroll-depth, 0) * 1.6px));
+    }
+    .space-rings{
+      background:
+        radial-gradient(circle at 50% 14%, rgba(255,244,214,.06) 0 2%, transparent 8%),
+        conic-gradient(from calc(var(--scroll-depth, 0) * 220deg) at 50% 18%, rgba(255,244,214,.08), transparent 18%, rgba(255,255,255,.04) 34%, transparent 56%, rgba(255,244,214,.06) 82%, transparent);
+      opacity:calc(.1 + var(--scroll-depth, 0) * .08);
+    }
+    body::before,
+    body::after{display:none}
+    header,
+    main{
+      position:relative;
+      z-index:3;
+    }
+    .display{
+      font-family:"Bebas Neue","Noto Sans SC",sans-serif;
+      letter-spacing:.04em;
+    }
+    .serif{
+      font-family:"Noto Serif SC",serif;
+    }
+    .glass{
+      background:linear-gradient(180deg, rgba(8,10,14,.216), rgba(7,9,12,.378));
+      border:1px solid var(--line);
+      backdrop-filter:blur(12px) saturate(1.05);
+      box-shadow:var(--shadow);
+    }
+    .panel-strong{
+      background:linear-gradient(180deg, rgba(8,10,14,.27), rgba(6,8,11,.486));
+    }
+    .outline-card{
+      position:relative;
+      overflow:hidden;
+    }
+    .outline-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border:1px solid rgba(255,255,255,.06);
+      pointer-events:none;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:.6rem;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.035);
+      padding:.5rem .8rem;
+      color:var(--text);
+      font-size:.72rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      box-shadow:inset 4px 0 0 var(--red);
+    }
+    .nav-link{
+      position:relative;
+      color:rgba(248,243,231,.88);
+      padding:.35rem 0;
+      transition:color .25s ease;
+      text-shadow:0 1px 10px rgba(0,0,0,.28);
+    }
+    .nav-link::after{
+      content:"";
+      position:absolute;
+      left:0;
+      bottom:-.1rem;
+      width:100%;
+      height:1px;
+      transform:scaleX(0);
+      transform-origin:left;
+      background:linear-gradient(90deg,var(--sand),transparent);
+      transition:transform .25s ease;
+    }
+    .nav-link:hover{color:#fff}
+    .nav-link:hover::after{transform:scaleX(1)}
+    .hero-grid{
+      background-image:
+        linear-gradient(rgba(164,208,255,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(164,208,255,.05) 1px, transparent 1px);
+      background-size:42px 42px;
+    }
+    .hero-title{
+      text-shadow:5px 5px 0 rgba(255,244,214,.09), -3px -3px 0 rgba(255,141,104,.1);
+    }
+    .hero-title .title-line{
+      display:block;
+    }
+    .hero-title .title-line:nth-child(2){
+      margin-left:.12em;
+    }
+    .hero-title .title-line:nth-child(3){
+      margin-left:.24em;
+    }
+    .signal-line{
+      height:1px;
+      background:linear-gradient(90deg, transparent, rgba(240,223,191,.7), transparent);
+    }
+    .film-card{
+      position:relative;
+      overflow:hidden;
+      background:#000;
+      border:1px solid rgba(240,223,191,.18);
+    }
+    .film-card::before,.film-card::after{
+      content:"";
+      position:absolute;
+      left:0;
+      width:100%;
+      height:12px;
+      z-index:3;
+      opacity:.62;
+      background-image:linear-gradient(90deg, rgba(240,223,191,.85) 0 8px, transparent 8px 18px);
+      background-size:18px 12px;
+    }
+    .film-card::before{top:-10px}
+    .film-card::after{bottom:-10px}
+    .reveal{
+      opacity:0;
+      transform:translateY(24px);
+      transition:opacity .75s ease, transform .75s ease;
+    }
+    .reveal.in-view{
+      opacity:1;
+      transform:translateY(0);
+    }
+    .project-card,
+    .process-card,
+    .fit-card,
+    .archive-card,
+    .timeline-card{
+      transition:transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+    .project-card:hover,
+    .process-card:hover,
+    .fit-card:hover,
+    .archive-card:hover,
+    .timeline-card:hover{
+      transform:translate(-4px,-4px);
+      border-color:var(--line-strong);
+    }
+    .project-card img{
+      transition:transform .75s ease, filter .75s ease;
+    }
+    .project-card:hover img{
+      transform:scale(1.06);
+      filter:saturate(1.08);
+    }
+    .work-detail-btn{
+      position:absolute;
+      left:0;
+      bottom:6.5rem;
+      z-index:10;
+      display:inline-flex;
+      align-items:center;
+      gap:.65rem;
+      border:none;
+      border-left:3px solid var(--sand);
+      background:linear-gradient(90deg, rgba(255,244,214,.2) 0%, rgba(255,244,214,.06) 70%, transparent);
+      padding:.6rem 1.2rem .6rem 1rem;
+      color:#fff5e0;
+      font-size:.82rem;
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:background .25s ease, padding .25s ease, gap .25s ease;
+      text-shadow:0 2px 10px rgba(0,0,0,.6);
+      backdrop-filter:blur(4px);
+      box-shadow:0 0 14px rgba(255,244,214,.1), inset 2px 0 8px rgba(255,244,214,.06);
+    }
+    .work-detail-btn:hover{
+      background:linear-gradient(90deg, rgba(255,244,214,.32) 0%, rgba(255,244,214,.1) 60%, transparent);
+      padding-left:1.3rem;
+      gap:.85rem;
+      box-shadow:0 0 22px rgba(255,244,214,.18), inset 2px 0 12px rgba(255,244,214,.1);
+    }
+    .work-detail-btn i{
+      font-size:.65rem;
+      transition:transform .25s ease;
+      color:var(--sand);
+    }
+    .work-detail-btn:hover i{
+      transform:translateX(5px);
+    }
+    .stat-number{
+      font-family:"Bebas Neue","Noto Sans SC",sans-serif;
+      font-size:3rem;
+      line-height:1;
+      letter-spacing:.08em;
+      color:var(--sand);
+    }
+    .matrix{
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px),
+        linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px);
+      background-size:100% 100%, 100% 100%;
+    }
+    .timeline-dot{
+      position:relative;
+      padding-left:1.4rem;
+    }
+    .timeline-dot::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:.55rem;
+      width:.55rem;
+      height:.55rem;
+      background:var(--lime);
+      box-shadow:0 0 16px rgba(184,255,102,.55);
+    }
+    .archive-card{
+      position:relative;
+      isolation:isolate;
+    }
+    .archive-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      background:linear-gradient(135deg, rgba(255,244,214,.12), transparent 35%, rgba(255,141,104,.12));
+      opacity:0;
+      transition:opacity .25s ease;
+    }
+    .archive-card:hover::before{opacity:1}
+    .badge-stage{
+      position:relative;
+      padding-top:3rem;
+    }
+    .pass-teaser{
+      position:absolute;
+      right:-1.4rem;
+      top:-1.8rem;
+      z-index:5;
+      width:14rem;
+      height:8.8rem;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:1.6rem;
+      background:
+        linear-gradient(145deg, rgba(255,244,214,.22), rgba(255,255,255,.05) 35%, rgba(8,10,14,.24) 72%),
+        linear-gradient(180deg, rgba(10,14,20,.7), rgba(6,8,12,.46));
+      backdrop-filter:blur(12px);
+      box-shadow:0 18px 46px rgba(0,0,0,.28);
+      transform:rotate(12deg) translateY(0);
+      transform-origin:100% 0;
+      overflow:hidden;
+      cursor:pointer;
+      animation:teaserFloat 3.2s ease-in-out infinite;
+    }
+    .pass-teaser::before{
+      content:"";
+      position:absolute;
+      inset:.7rem;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:1.15rem;
+    }
+    .pass-teaser::after{
+      content:"个人介绍";
+      position:absolute;
+      left:1rem;
+      bottom:1rem;
+      font-family:"Bebas Neue","Noto Sans SC",sans-serif;
+      font-size:1.5rem;
+      letter-spacing:.12em;
+      color:rgba(255,248,236,.95);
+      text-shadow:0 6px 18px rgba(0,0,0,.35);
+    }
+    .pass-teaser-glow{
+      position:absolute;
+      right:1rem;
+      top:1rem;
+      width:2.6rem;
+      height:2.6rem;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(255,223,164,.95), rgba(255,223,164,0));
+      filter:blur(2px);
+      opacity:.9;
+      animation:teaserPulse 2.2s ease-in-out infinite;
+    }
+    .pass-teaser-hint{
+      position:absolute;
+      left:1rem;
+      top:1rem;
+      font-size:.64rem;
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      color:rgba(255,248,236,.72);
+    }
+    .pass-teaser-arrow{
+      position:absolute;
+      left:50%;
+      bottom:-2.4rem;
+      transform:translateX(-50%);
+      font-size:1.55rem;
+      color:rgba(255,248,236,.96);
+      text-shadow:0 6px 18px rgba(0,0,0,.3);
+      animation:teaserArrowDown 1.6s ease-in-out infinite;
+    }
+    @keyframes teaserFloat{
+      0%,100%{transform:rotate(12deg) translateY(0)}
+      50%{transform:rotate(10deg) translateY(-8px)}
+    }
+    @keyframes teaserArrowDown{
+      0%,100%{transform:translateX(-50%) translateY(0)}
+      50%{transform:translateX(-50%) translateY(8px)}
+    }
+    @keyframes teaserPulse{
+      0%,100%{transform:scale(.9);opacity:.75}
+      50%{transform:scale(1.08);opacity:1}
+    }
+    .badge-hanger{
+      position:absolute;
+      left:50%;
+      top:0;
+      width:8.5rem;
+      height:4.5rem;
+      transform:translateX(-50%);
+      pointer-events:none;
+      z-index:1;
+    }
+    .badge-hanger::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      top:0;
+      width:2px;
+      height:2.8rem;
+      transform:translateX(-50%);
+      background:linear-gradient(180deg, rgba(241,225,190,.85), rgba(126,105,74,.28));
+      box-shadow:0 0 10px rgba(241,225,190,.18);
+    }
+    .badge-hanger::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:.55rem;
+      width:5.4rem;
+      height:2rem;
+      border:.12rem solid rgba(233,220,190,.42);
+      border-bottom:none;
+      border-radius:999px 999px 0 0;
+      transform:translateX(-50%);
+      opacity:.82;
+    }
+    .id-badge{
+      --badge-x:0px;
+      --badge-y:0px;
+      --badge-r:0deg;
+      position:relative;
+      transform:translate3d(var(--badge-x), var(--badge-y), 0) rotate(var(--badge-r));
+      transform-origin:50% 0%;
+      cursor:pointer;
+      user-select:none;
+      touch-action:manipulation;
+      will-change:transform;
+      transition:box-shadow .35s ease, border-color .35s ease, transform .35s ease;
+    }
+    .id-badge:hover{
+      box-shadow:0 32px 90px rgba(0,0,0,.42);
+      border-color:rgba(255,244,214,.3);
+    }
+    .id-badge.is-open{
+      box-shadow:0 42px 120px rgba(0,0,0,.5);
+    }
+    .badge-shell{
+      position:relative;
+      overflow:hidden;
+      border-radius:1.8rem;
+      border:1px solid rgba(255,255,255,.16);
+      background:
+        linear-gradient(160deg, rgba(255,244,214,.1) 0%, rgba(16,20,28,.216) 30%, rgba(7,9,13,.612) 100%);
+    }
+    .badge-shell::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at top right, rgba(255,244,214,.24), transparent 18rem),
+        linear-gradient(135deg, rgba(255,255,255,.16), transparent 26%, transparent 60%, rgba(255,255,255,.06));
+      pointer-events:none;
+    }
+    .badge-shell::after{
+      content:"";
+      position:absolute;
+      inset:1rem;
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:1.25rem;
+      pointer-events:none;
+    }
+    .badge-lanyard{
+      position:absolute;
+      left:50%;
+      top:-1.1rem;
+      width:1.9rem;
+      height:1.9rem;
+      border-radius:999px;
+      transform:translateX(-50%);
+      border:1px solid rgba(240,223,191,.24);
+      background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.16), rgba(23,18,14,.96));
+      box-shadow:0 0 0 .3rem rgba(7,7,8,.75);
+      z-index:2;
+    }
+    .badge-headline{
+      font-family:"Bebas Neue","Noto Sans SC",sans-serif;
+      letter-spacing:.34em;
+      text-transform:uppercase;
+      font-size:.62rem;
+      color:rgba(240,223,191,.74);
+    }
+    .badge-kicker{
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      font-size:.62rem;
+      color:rgba(255,255,255,.5);
+    }
+    .badge-photo{
+      position:relative;
+      min-height:15rem;
+      overflow:hidden;
+      border-radius:1.25rem;
+      border:1px solid rgba(255,255,255,.06);
+      background:#090909;
+    }
+    .badge-photo::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.26) 54%, rgba(0,0,0,.88));
+    }
+    .badge-photo img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      object-position:center;
+      filter:saturate(.92) contrast(1.02);
+    }
+    .hero-tools{
+      margin-top:1.5rem;
+      max-width:32rem;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:1.15rem;
+      background:linear-gradient(180deg, rgba(8,10,14,.558), rgba(7,9,12,.738));
+      padding:1rem 1.1rem 1.15rem;
+      box-shadow:0 18px 36px rgba(0,0,0,.3);
+    }
+    .hero-cover{
+      min-height:100vh;
+      padding:7rem 1.5rem 2rem;
+    }
+    .hero-canvas{
+      position:relative;
+      overflow:hidden;
+      min-height:calc(100vh - 9rem);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:2rem;
+      background:rgba(4,5,7,.342);
+      box-shadow:0 30px 100px rgba(0,0,0,.34);
+    }
+    .hero-media{
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(90deg, rgba(5,8,13,.14) 0%, rgba(5,8,13,.06) 34%, rgba(5,8,13,.02) 60%, rgba(5,8,13,.1) 100%),
+        linear-gradient(180deg, rgba(0,0,0,.04), rgba(0,0,0,.12));
+      filter:none;
+      transform:scale(1.02);
+    }
+    .hero-media::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(circle at 72% 22%, rgba(255,235,194,.06), transparent 20%),
+        linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,.12));
+    }
+    .hero-film{
+      display:none;
+    }
+    .hero-noise{
+      position:absolute;
+      inset:0;
+      opacity:.12;
+      mix-blend-mode:screen;
+      background:
+        radial-gradient(circle at 16% 20%, rgba(255,255,255,.8) 0 1px, transparent 2px),
+        radial-gradient(circle at 72% 62%, rgba(255,255,255,.5) 0 1px, transparent 2px),
+        radial-gradient(circle at 84% 18%, rgba(255,255,255,.65) 0 1px, transparent 2px);
+      background-size:240px 240px, 360px 360px, 520px 520px;
+    }
+    .hero-copy{
+      position:relative;
+      z-index:2;
+      display:flex;
+      min-height:calc(100vh - 9rem);
+      flex-direction:column;
+      justify-content:space-between;
+      padding:2rem;
+    }
+    .hero-marquee{
+      font-family:"Bebas Neue","Noto Serif SC",serif;
+      max-width:9ch;
+      font-size:clamp(4.2rem, 12vw, 10.5rem);
+      line-height:.9;
+      letter-spacing:.06em;
+      color:transparent;
+      text-transform:uppercase;
+      background:linear-gradient(180deg, rgba(255,252,246,.98), rgba(255,233,188,.92) 55%, rgba(255,255,255,.72));
+      -webkit-background-clip:text;
+      background-clip:text;
+      text-shadow:0 12px 30px rgba(0,0,0,.28);
+    }
+    .hero-bottom{
+      display:grid;
+      gap:1.5rem;
+      align-items:end;
+    }
+    .hero-footer-bar{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      border-top:1px solid rgba(255,255,255,.12);
+      padding-top:1rem;
+      font-size:.82rem;
+      color:rgba(255,248,236,.82);
+    }
+    .hero-subcopy{
+      max-width:40rem;
+      font-size:1.02rem;
+      line-height:2;
+      color:rgba(248,243,233,.94);
+      text-shadow:0 6px 20px rgba(0,0,0,.52);
+      font-weight:500;
+    }
+    .hero-pass-shell{
+      position:absolute;
+      right:2.2rem;
+      top:2.2rem;
+      z-index:4;
+      width:min(34rem, 42vw);
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(-120%);
+      transition:opacity .35s ease, transform .35s ease;
+    }
+    .hero-pass-shell.is-visible{
+      opacity:1;
+      pointer-events:auto;
+      transform:none;
+    }
+    .hero-pass-shell .badge-stage{
+      padding-top:3.2rem;
+    }
+    .hero-drop-trigger{
+      display:none;
+      align-items:center;
+      gap:.8rem;
+      border:1px solid rgba(255,255,255,.16);
+      border-radius:999px;
+      background:rgba(7,10,13,.52);
+      padding:.8rem 1rem;
+      color:#f0dfbf;
+      font-size:.72rem;
+      letter-spacing:.24em;
+      text-transform:uppercase;
+      backdrop-filter:blur(12px);
+      cursor:pointer;
+      transition:background .25s ease, border-color .25s ease;
+    }
+    .hero-drop-trigger:hover{
+      background:rgba(255,255,255,.12);
+      border-color:rgba(243,223,178,.34);
+    }
+    .hero-drop-trigger i{
+      font-size:.88rem;
+    }
+    .works-flow{
+      display:grid;
+      gap:2rem;
+      align-items:start;
+    }
+    .works-rail{
+      display:grid;
+      gap:2.8rem;
+    }
+    .work-poster{
+      position:relative;
+      overflow:hidden;
+      height:36rem;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:2.2rem;
+      background:rgba(6,8,11,.144);
+      text-align:left;
+    }
+    .work-poster img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      transition:transform .8s ease, filter .8s ease;
+      filter:saturate(.9) contrast(.95);
+    }
+    .work-poster:hover img,
+    .work-poster.is-active img{
+      transform:scale(1.03);
+      filter:saturate(1) contrast(1);
+    }
+    .work-poster::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.14) 34%, rgba(0,0,0,.58) 100%);
+    }
+    .work-poster-body{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:1.8rem;
+    }
+    .work-poster-year{
+      font-size:.82rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(240,223,191,.8);
+    }
+    .work-poster-title{
+      max-width:22rem;
+      font-family:"Bebas Neue","Noto Sans SC",sans-serif;
+      font-size:clamp(2.8rem, 7vw, 4.8rem);
+      line-height:.92;
+      letter-spacing:.02em;
+      color:#fff8ea;
+    }
+    .work-poster-meta{
+      display:grid;
+      gap:.45rem;
+      max-width:22rem;
+      font-size:.76rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.8);
+    }
+    .works-sidebar{
+      position:sticky;
+      top:7rem;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:1.7rem;
+      background:linear-gradient(180deg, rgba(8,10,14,.234), rgba(7,8,11,.414));
+      padding:1.2rem;
+      box-shadow:0 24px 80px rgba(0,0,0,.3);
+    }
+    .works-sidebar-list{
+      display:grid;
+      gap:.55rem;
+      margin-top:1rem;
+    }
+    .works-sidebar-chip{
+      display:flex;
+      justify-content:space-between;
+      gap:1rem;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:.9rem;
+      padding:.7rem .9rem;
+      color:rgba(255,248,236,.84);
+      font-size:.72rem;
+      letter-spacing:.15em;
+      text-transform:uppercase;
+      background:rgba(255,255,255,.036);
+      cursor:pointer;
+      transition:border-color .25s ease, background .25s ease, color .25s ease;
+    }
+    .works-sidebar-chip.is-active,
+    .works-sidebar-chip:hover{
+      border-color:rgba(240,223,191,.22);
+      background:rgba(240,223,191,.1);
+      color:#f7ebd2;
+    }
+    @media (min-width: 1024px){
+      .works-flow{
+        grid-template-columns:minmax(0, 1.2fr) minmax(18rem, .48fr);
+      }
+    }
+    .badge-strip{
+      display:flex;
+      flex-wrap:wrap;
+      gap:.5rem;
+    }
+    .badge-pill{
+      border:1px solid rgba(240,223,191,.16);
+      border-radius:999px;
+      padding:.35rem .7rem;
+      font-size:.62rem;
+      letter-spacing:.2em;
+      text-transform:uppercase;
+      color:rgba(240,223,191,.72);
+      background:rgba(255,255,255,.03);
+    }
+    .badge-meta{
+      display:grid;
+      gap:.75rem;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+    .badge-meta-card{
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:1rem;
+      background:rgba(255,255,255,.036);
+      padding:.9rem 1rem;
+    }
+    .process-card,
+    .fit-card,
+    .timeline-card,
+    .archive-card{
+      background:linear-gradient(180deg, rgba(8,10,14,.162), rgba(7,9,12,.306)) !important;
+      border-color:rgba(255,255,255,.12) !important;
+      backdrop-filter:blur(10px);
+    }
+    .badge-detail-card{
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:1.1rem;
+      background:linear-gradient(180deg, rgba(255,255,255,.036), rgba(255,255,255,.018));
+      padding:1rem;
+    }
+    .badge-detail-card p,
+    .badge-detail-card a{
+      color:rgba(236,233,224,.88);
+      font-size:.92rem;
+      line-height:1.85;
+    }
+    .badge-detail-card a{
+      text-decoration:none;
+    }
+    .badge-status{
+      display:inline-flex;
+      align-items:center;
+      gap:.5rem;
+      border:1px solid rgba(240,223,191,.16);
+      border-radius:999px;
+      padding:.45rem .8rem;
+      font-size:.62rem;
+      letter-spacing:.22em;
+      text-transform:uppercase;
+      color:var(--sand);
+      background:rgba(255,255,255,.03);
+    }
+    .badge-status::before{
+      content:"";
+      width:.45rem;
+      height:.45rem;
+      border-radius:999px;
+      background:#d8b781;
+      box-shadow:0 0 10px rgba(216,183,129,.7);
+    }
+    .badge-note{
+      font-size:.72rem;
+      letter-spacing:.18em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.38);
+    }
+    .rounded-xl,
+    .rounded-2xl,
+    .rounded-\[1\.75rem\],
+    .rounded-\[2rem\],
+    .rounded-full{
+      border-radius:12px !important;
+    }
+    .text-sand{color:var(--sand)}
+    .text-muted{color:var(--muted)}
+    .line-clamp-4{
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:4;
+      overflow:hidden;
+    }
+    @media (max-width: 767px){
+      .hero-cover{
+        padding:6rem 1rem 1rem;
+      }
+      .hero-canvas,
+      .hero-copy{
+        min-height:84vh;
+      }
+      .hero-copy{
+        padding:1.25rem;
+      }
+      .hero-pass-shell{
+        position:relative;
+        right:auto;
+        top:auto;
+        width:100%;
+        margin-top:1.5rem;
+      }
+      .hero-bottom{
+        align-items:start;
+      }
+      .works-sidebar{
+        position:relative;
+        top:auto;
+      }
+      .hero-title{
+        font-size:4.2rem !important;
+        line-height:.92;
+      }
+      .stat-number{
+        font-size:2.4rem;
+      }
+    }
+  </style>
 </head>
-<body class="relative antialiased overflow-y-auto">
+<body>
+  <div class="video-stage" aria-hidden="true">
+    <video id="bgVideo" class="video-bg" autoplay muted loop playsinline preload="auto" disablePictureInPicture>
+      <source src="./kling_bg.webm" type="video/webm">
+      <source src="./kling_scroll_optimized_v2.mp4" type="video/mp4">
+    </video>
+    <div class="video-scrim"></div>
+  </div>
+  <div class="space-vignette" aria-hidden="true"></div>
+  <div class="space-stars" aria-hidden="true"></div>
+  <div class="space-rings" aria-hidden="true"></div>
+  <div id="progress" class="fixed left-0 top-0 z-[60] h-[2px] w-0 bg-[linear-gradient(90deg,transparent,var(--sand),transparent)] shadow-[0_0_18px_rgba(240,223,191,.7)]"></div>
 
-    <!-- 胶片噪点层 -->
-    <div class="noise-bg"></div>
-
-    <!-- 自定义鼠标指针 -->
-    <div class="custom-cursor hidden md:block" id="cursor"></div>
-    <div class="custom-cursor-follower hidden md:block" id="cursor-follower"></div>
-
-    <!-- 1. 电影开幕式加载动画 -->
-    <div id="intro-screen" class="fixed inset-0 bg-[#0d0d0d] z-[10000] flex flex-col justify-center items-center transition-opacity duration-1000 ease-out">
-        <div class="text-center">
-            <div class="text-[10px] tracking-[0.5em] text-neutral-500 mb-2 font-light uppercase">Render Engine Initializing</div>
-            <div class="flex items-center space-x-3">
-                <span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
-                <h1 class="text-xl md:text-2xl font-bold tracking-widest text-white uppercase">AIGC REEL LOADING...</h1>
-            </div>
-            <div class="w-32 h-[1px] bg-neutral-800 mx-auto mt-6 relative overflow-hidden">
-                <div class="absolute inset-y-0 left-0 w-1/2 bg-white animate-[shimmer_1.5s_infinite]"></div>
-            </div>
+  <header class="fixed left-0 top-0 z-40 w-full px-4 py-4 md:px-8">
+    <div class="glass mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-[1.75rem] px-4 py-3 md:px-6">
+      <a href="#home" class="flex min-w-0 items-center gap-3">
+        <span class="h-3 w-6 shrink-0 bg-[linear-gradient(90deg,#ff6a4c,#f0dfbf,#6fd1ff)]"></span>
+        <div class="min-w-0">
+          <div class="display truncate text-2xl leading-none text-sand md:text-3xl">XU YUFAN</div>
+          <div class="truncate text-[10px] uppercase tracking-[.32em] text-muted">AIGC Video Portfolio</div>
         </div>
+      </a>
+      <nav class="hidden items-center gap-7 text-[11px] uppercase tracking-[.22em] md:flex">
+        <a class="nav-link" href="#works">作品</a>
+        <a class="nav-link" href="#process">流程</a>
+        <a class="nav-link" href="#skills">能力</a>
+        <a class="nav-link" href="#experience">经历</a>
+        <a class="nav-link" href="#contact">联系</a>
+      </nav>
+      <a href="mailto:1357274498@qq.com" class="hidden rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] uppercase tracking-[.2em] text-sand transition hover:bg-white/10 sm:inline-flex">Mail</a>
+      <button id="menuBtn" class="grid h-10 w-10 place-items-center rounded-xl border border-white/10 bg-white/5 text-white md:hidden" aria-label="打开菜单">
+        <i class="fa-solid fa-bars"></i>
+      </button>
     </div>
-    <style> @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } } </style>
+    <div id="mobileMenu" class="glass mx-auto mt-3 hidden max-w-7xl rounded-[1.75rem] p-4 text-sm tracking-[.16em] text-neutral-200 md:hidden">
+      <div class="grid gap-3">
+        <a href="#works">作品</a>
+        <a href="#process">流程</a>
+        <a href="#skills">能力</a>
+        <a href="#experience">经历</a>
+        <a href="#contact">联系</a>
+      </div>
+    </div>
+  </header>
 
-    <!-- 2. 全局高级导航栏 -->
-    <nav class="fixed top-0 left-0 w-full z-50 px-6 md:px-12 py-6 flex justify-between items-center bg-gradient-to-b from-[#0a0a0a] to-transparent">
-        <a href="#" class="text-xl font-bold tracking-tighter hover-target">YUFAN.AI<span class="text-red-600">.</span></a>
-        <div class="hidden md:flex space-x-8 text-xs tracking-widest uppercase text-neutral-400 items-center">
-            <a href="#works" class="hover:text-white transition-colors duration-300 hover-target">精选作品 / Works</a>
-            <a href="#about" class="hover:text-white transition-colors duration-300 hover-target">关于我 / About</a>
-            <a href="https://eossi-protfolio.my.canvasite.cn/dahd0j-s9o" target="_blank" class="bg-neutral-900 border border-neutral-800 px-3 py-1.5 text-neutral-200 rounded hover:border-white transition-colors hover-target flex items-center gap-1.5">
-                <i class="fa-solid fa-wand-magic-sparkles text-red-500"></i> 艺术画册 Portfolio
-            </a>
-        </div>
-        <div>
-            <a href="mailto:your_email@example.com" class="border border-neutral-700 px-4 py-2 text-xs uppercase tracking-wider rounded-full hover:bg-white hover:text-black transition-all duration-300 hover-target">联系我 / Contact</a>
-        </div>
-    </nav>
+  <main>
+    <section id="home" class="hero-cover">
+      <div class="mx-auto max-w-7xl">
+        <div class="hero-canvas">
+          <div class="hero-media"></div>
+          <div class="hero-film"></div>
+          <div class="hero-noise"></div>
 
-    <!-- 3. 首屏求职核心宣发 -->
-    <header class="h-screen w-full flex flex-col justify-center px-6 md:px-24 relative overflow-hidden">
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(50,20,20,0.12),transparent_45%)]"></div>
-        
-        <div class="max-w-4xl z-10">
-            <p class="text-xs md:text-sm uppercase tracking-[0.3em] text-red-500 font-bold mb-4">// AIGC Video Creator & Post-Production Colorist</p>
-            <h1 class="text-4xl md:text-7xl font-bold tracking-tight leading-tight uppercase mb-6 text-white">
-                解构传统视听，<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-neutral-100 via-neutral-400 to-neutral-700">用AI重构影像的无边疆界。</span>
-            </h1>
-            <p class="text-sm md:text-base text-neutral-400 max-w-2xl font-light leading-relaxed mb-8">
-                专注于 **AIGC 视频内容创作与高级后期工业化落地**。擅长将尖端 AI 视频生成技术（Runway / Sora / Midjourney）与传统电影工业级剪辑、调色及后期美术深度融合，打造兼具先锋创意与大片质感的商业化视觉落地。
-            </p>
-            <div class="flex space-x-4">
-                <a href="#works" class="bg-white text-black text-xs uppercase font-bold tracking-widest px-6 py-3 rounded-md hover:bg-neutral-200 transition-all duration-300 hover-target">点此审片 / View Master Reel</a>
+          <div id="heroPassShell" class="hero-pass-shell">
+            <div class="badge-stage">
+              <div class="badge-hanger" aria-hidden="true"></div>
+              <button id="idBadge" type="button" class="id-badge glass panel-strong outline-card w-full rounded-[2rem] p-4 text-left md:p-5" aria-expanded="false">
+                <span class="badge-lanyard" aria-hidden="true"></span>
+                <div class="badge-shell p-4 md:p-5">
+                  <div class="mb-4 flex items-start justify-between gap-4">
+                    <div>
+                      <div class="badge-headline">个人介绍</div>
+                      <div class="badge-kicker mt-2">AIGC Video Portfolio</div>
+                    </div>
+                    <span class="badge-status">Open To Work</span>
+                  </div>
+
+                  <div class="grid gap-4 md:grid-cols-[.88fr_1.12fr]">
+                    <div class="badge-photo">
+                      <img src="./xuyufan_studio_pass_photo.png" alt="许宇帆照片" loading="lazy">
+                    </div>
+                    <div class="flex flex-col justify-between gap-4">
+                      <div>
+                        <div class="badge-note">Identity</div>
+                        <h2 class="serif mt-2 text-3xl font-bold text-white">许宇帆</h2>
+                        <div class="mt-3 text-sm uppercase tracking-[.34em] text-sand">AI Video Director</div>
+                        <p class="mt-4 text-sm leading-7 text-neutral-300">影像叙事 / AIGC 视觉表达 / 后期完成度</p>
+                      </div>
+                      <div class="badge-strip">
+                        <span class="badge-pill">Story First</span>
+                        <span class="badge-pill">Film Sense</span>
+                        <span class="badge-pill">AI Workflow</span>
+                      </div>
+                      <div class="badge-meta">
+                        <div class="badge-meta-card">
+                          <div class="badge-kicker">Base</div>
+                          <div class="mt-2 text-sm text-white">广东财经大学</div>
+                        </div>
+                        <div class="badge-meta-card">
+                          <div class="badge-kicker">Major</div>
+                          <div class="mt-2 text-sm text-white">广播电视编导</div>
+                        </div>
+                        <div class="badge-meta-card">
+                          <div class="badge-kicker">Focus</div>
+                          <div class="mt-2 text-sm text-white">短视频 / AI MV / 品牌样片</div>
+                        </div>
+                        <div class="badge-meta-card">
+                          <div class="badge-kicker">Click</div>
+                          <div class="mt-2 text-sm text-white">Drop To Unlock</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>
             </div>
-        </div>
+          </div>
+          <button id="passTeaser" type="button" class="pass-teaser" aria-label="展开个人介绍">
+            <span class="pass-teaser-hint">Tap to reveal</span>
+            <span class="pass-teaser-glow" aria-hidden="true"></span>
+            <span class="pass-teaser-arrow" aria-hidden="true">></span>
+          </button>
 
-        <div class="absolute bottom-10 left-6 md:left-24 flex items-center space-x-3 text-xs tracking-widest uppercase text-neutral-500">
-            <span>Scroll or Drag to Explore</span>
-            <div class="w-12 h-[1px] bg-neutral-700"></div>
-        </div>
-    </header>
-
-    <!-- 4. 横向滚动 AIGC 案例看板 -->
-    <section id="works" class="py-20 bg-[#0d0d0d] relative border-y border-neutral-900">
-        <div class="px-6 md:px-24 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+          <div class="hero-copy">
             <div>
-                <span class="text-xs tracking-widest text-red-500 font-bold uppercase">// Selected AIGC Showcases</span>
-                <h2 class="text-2xl md:text-4xl font-bold tracking-tight text-white mt-1">AIGC 影像作品集</h2>
+              <div class="hero-marquee">AIGC<br>VIDEO<br>DIRECTOR</div>
             </div>
-            <p class="text-xs text-neutral-500 max-w-sm leading-relaxed">
-                * 面试官您好：支持鼠标【按住左右拖拽】或滚轮浏览。**点击任意卡片**可展开完整的 AI 工具链、提示词及全流程工作流拆解。
-            </p>
+            <div class="hero-bottom">
+              <div class="hero-subcopy space-y-4">
+                <p>许宇帆，广东财经大学广播电视编导专业在读，正在申请 AIGC 视频方向岗位。</p>
+                <p>我擅长把影像审美、策划表达、片场协作和 AI 辅助流程接在一起，从选题、脚本、分镜、素材整理一路推进到剪辑、调色和成片包装。</p>
+              </div>
+              <div class="hero-tools">
+                <div class="badge-headline">Tools</div>
+                <p class="mt-3 text-sm leading-8 text-neutral-100 md:text-base">Premiere / 剪映 / DaVinci / ChatGPT / Gemini / Midjourney</p>
+              </div>
+              <div class="hero-footer-bar">
+                <div>Creative direction for AI-driven moving image.</div>
+                <button id="heroDropTrigger" type="button" class="hero-drop-trigger">
+                  <i class="fa-solid fa-id-badge"></i>
+                  Reveal Studio Pass
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-
-        <!-- 动态生成卡片的横向容器 -->
-        <div id="drag-container" class="w-full overflow-x-scroll no-scrollbar cursor-grab active:cursor-grabbing flex px-6 md:px-24 space-x-6 py-4 select-none">
-            <!-- 动态卡片内容将由 JavaScript 初始化并根据配置控制面板实时渲染 -->
-        </div>
+      </div>
     </section>
 
-    <!-- 5. 求职向：关于我与专业素养 -->
-    <section id="about" class="py-24 px-6 md:px-24 max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-        <div class="md:col-span-1">
-            <span class="text-xs tracking-widest text-red-500 font-bold uppercase">// AIGC Creator Core</span>
-            <h2 class="text-3xl font-bold tracking-tight text-white mt-1">关于我 / PROFILE</h2>
-            <div class="w-16 h-[2px] bg-red-600 mt-4"></div>
+    <section id="works" class="border-t border-white/5 px-5 py-16 md:px-10 md:py-24">
+      <div class="mx-auto max-w-7xl">
+        <div class="reveal mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div class="chip mb-5">Selected Works</div>
+            <h2 class="serif text-4xl font-bold leading-tight text-sand md:text-6xl">代表项目与<br>作品案例</h2>
+          </div>
         </div>
-        <div class="md:col-span-2 text-neutral-300 text-sm font-light leading-relaxed space-y-6">
-            <p>
-                我是毕业于**广播电视编导专业**的影像创作者。习惯从技术（AIGC技术生态 / 达芬奇调色 / 视频剪辑）与美学艺术双向切入视听语言。
-            </p>
-            <p>
-                面对 AIGC 带来的行业变革，我致力于探索一条 **“AI 生成高概念素材 + 电影级后期工业化修描”** 的工作流。无论是植根泥土的在地文化纪录片、充满对抗性的前卫亚文化视觉探索、还是严谨的剧组美术概念落地，我都渴望用 AI 为创作者和观众之间提供最高效、最惊艳的视觉解法。
-            </p>
-            <div class="pt-6 grid grid-cols-2 gap-4 border-t border-neutral-900 text-xs text-neutral-400">
-                <div>
-                    <h4 class="font-bold text-white uppercase tracking-wider mb-2">AIGC 技能栈</h4>
-                    <p>Midjourney / Runway Gen-3 / 可灵 / Stable Diffusion / 提示词工程与高可控分镜生成</p>
-                </div>
-                <div>
-                    <h4 class="font-bold text-white uppercase tracking-wider mb-2">专业后期功底</h4>
-                    <p>DaVinci Resolve 调色（高级色彩密度控制、数字胶片噪点融合） / Premiere 剪辑控节奏 / AE 特效合成</p>
-                </div>
+        <div class="works-flow">
+          <div id="projectGrid" class="works-rail"></div>
+          <aside class="works-sidebar reveal">
+            <div class="badge-headline">Project Index</div>
+            <div class="serif mt-3 text-3xl font-bold text-white" id="sidebarTitle">代表项目</div>
+            <div class="mt-3 text-[11px] uppercase tracking-[.26em] text-sand" id="sidebarCategory">Selected Works</div>
+            <p id="sidebarRole" class="mt-6 text-sm leading-7 text-neutral-200"></p>
+            <p id="sidebarDesc" class="mt-4 text-sm leading-7 text-neutral-400"></p>
+            <div class="mt-5 border-t border-white/10 pt-5">
+              <div class="badge-headline">Transferable Value</div>
+              <p id="sidebarFit" class="mt-3 text-sm leading-7 text-neutral-300"></p>
             </div>
+            <div id="sidebarList" class="works-sidebar-list"></div>
+          </aside>
         </div>
+      </div>
     </section>
 
-    <!-- 6. 交互式“AIGC 案例拆解”弹出式播放器 -->
-    <div id="video-modal" class="fixed inset-0 bg-black/98 z-[9999] hidden flex-col justify-center items-center p-4 md:p-8 opacity-0 transition-opacity duration-300 overflow-y-auto">
-        <!-- 关闭按钮 -->
-        <button id="modal-close" class="absolute top-6 right-6 text-white text-3xl hover:text-red-500 transition-colors hover-target p-2 z-50">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-
-        <div class="w-full max-w-5xl bg-[#0f0f0f] rounded-lg overflow-hidden border border-neutral-800 shadow-2xl my-auto">
-            <!-- 播放器主体 -->
-            <div id="video-body" class="aspect-video w-full bg-neutral-950">
-                <!-- 动态渲染 -->
-            </div>
-            
-            <!-- AIGC 核心面试拆解看板 -->
-            <div class="p-6 md:p-8 border-t border-neutral-900 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-                <!-- 左侧：标题与项目背景 -->
-                <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-neutral-800 pb-4 md:pb-0 md:pr-6">
-                    <h3 id="modal-title" class="text-xl font-bold text-white mb-2"></h3>
-                    <div class="inline-block bg-neutral-900 border border-neutral-700 text-red-500 font-mono text-[10px] px-2 py-1 rounded mb-3">
-                        <i class="fa-solid fa-toolbox mr-1"></i> <span id="modal-tools"></span>
-                    </div>
-                </div>
-                <!-- 中间：核心 Prompt -->
-                <div class="md:col-span-1 border-b md:border-b-0 md:border-r border-neutral-800 pb-4 md:pb-0 md:px-6">
-                    <h4 class="text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2"><i class="fa-solid fa-code text-purple-500 mr-1"></i> Core Prompt (AI 提示词)</h4>
-                    <p id="modal-prompt" class="text-xs text-neutral-300 font-mono bg-neutral-950 p-3 rounded border border-neutral-900 leading-relaxed max-h-28 overflow-y-auto select-text"></p>
-                </div>
-                <!-- 右侧：后期工业化全流程 -->
-                <div class="md:col-span-1 md:pl-6">
-                    <h4 class="text-xs uppercase tracking-widest text-neutral-400 font-bold mb-2"><i class="fa-solid fa-timeline text-blue-500 mr-1"></i> Workflow (工业化工作流)</h4>
-                    <p id="modal-workflow" class="text-xs text-neutral-400 font-light leading-relaxed"></p>
-                </div>
-            </div>
+    <section id="skills" class="border-t border-white/5 px-5 py-16 md:px-10 md:py-24">
+      <div class="mx-auto max-w-7xl">
+        <div class="reveal mb-10 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div>
+            <div class="chip mb-5">Role Match</div>
+            <h2 class="serif text-4xl font-bold leading-tight text-sand md:text-6xl">岗位匹配能力矩阵</h2>
+          </div>
         </div>
+        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <article class="glass reveal rounded-[2rem] p-6">
+            <i class="fa-solid fa-wand-magic-sparkles mb-5 text-xl text-sand"></i>
+            <h3 class="serif mb-3 text-2xl font-bold">AI 辅助创意</h3>
+            <p class="text-sm leading-7 text-neutral-300">熟悉 ChatGPT、Gemini、即梦、TapNow、Midjourney 等工具，可参与创意发想、脚本结构、分镜拆解、画面参考和生成路线规划。</p>
+          </article>
+          <article class="glass reveal rounded-[2rem] p-6">
+            <i class="fa-solid fa-film mb-5 text-xl text-sand"></i>
+            <h3 class="serif mb-3 text-2xl font-bold">视频后期</h3>
+            <p class="text-sm leading-7 text-neutral-300">持续使用 Premiere、剪映、DaVinci Resolve，能够完成素材管理、粗剪精剪、字幕包装、节奏控制、调色和成片导出。</p>
+          </article>
+          <article class="glass reveal rounded-[2rem] p-6">
+            <i class="fa-solid fa-pen-nib mb-5 text-xl text-sand"></i>
+            <h3 class="serif mb-3 text-2xl font-bold">策划与文案</h3>
+            <p class="text-sm leading-7 text-neutral-300">能够完成主题提炼、传播表达、脚本撰写与内容结构梳理，适合短视频、品牌内容和视觉样片场景。</p>
+          </article>
+          <article class="glass reveal rounded-[2rem] p-6">
+            <i class="fa-solid fa-camera-retro mb-5 text-xl text-sand"></i>
+            <h3 class="serif mb-3 text-2xl font-bold">影像与美术</h3>
+            <p class="text-sm leading-7 text-neutral-300">具备片场协作、美术执行和场景氛围经验，能把真实拍摄逻辑转成更可靠的 AI 视觉判断标准。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience" class="border-t border-white/5 px-5 py-16 md:px-10 md:py-24">
+      <div class="mx-auto max-w-7xl">
+        <div class="grid gap-8 lg:grid-cols-12">
+          <div class="reveal lg:col-span-4">
+            <div class="sticky top-28">
+              <div class="chip mb-5">Experience</div>
+              <h2 class="serif text-4xl font-bold leading-tight text-sand md:text-6xl">项目经历与<br>教育背景</h2>
+            </div>
+          </div>
+          <div class="grid gap-5 lg:col-span-8">
+            <article class="glass reveal timeline-card timeline-dot rounded-[2rem] p-6">
+              <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <h3 class="serif text-2xl font-bold">核心身份：导演 / 全流程把控 / 编剧主导</h3>
+                <span class="text-xs uppercase tracking-[.2em] text-muted">作品集核心经历</span>
+              </div>
+              <p class="mb-3 text-sm text-sand">导演 / 全流程把控 / 编剧主导</p>
+              <p class="text-sm leading-7 text-neutral-300">11 分钟原创 AIGC 剧情片全链路创作，覆盖剧本孵化、AI 视觉风格定义、分镜指导到后期全流程；参与《走慢点也没关系》等短片后期制作，具备丰富片场经验，熟悉传统影视工业流程，具备精准把控叙事节奏与画面质感的能力，统筹脚本到影像落地全流程，兼具叙事创作与视觉落地。</p>
+            </article>
+            <article class="glass reveal timeline-card timeline-dot rounded-[2rem] p-6">
+              <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <h3 class="serif text-2xl font-bold">奖项与入围信号</h3>
+                <span class="text-xs uppercase tracking-[.2em] text-muted">Awards</span>
+              </div>
+              <ul class="grid gap-3 text-sm leading-7 text-neutral-300">
+                <li>纪录片《走慢点也没关系》入围第七届海南岛国际电影节青椰计划·青椰学堂终审。</li>
+                <li>纪录片《走慢点也没关系》获得 2025 南京“鼓楼映像季”最佳纪录片奖。</li>
+                <li>纪录片《走慢点也没关系》入围第十五届澳门国际微电影节学生组。</li>
+              </ul>
+            </article>
+            <article class="glass reveal timeline-card timeline-dot rounded-[2rem] p-6">
+              <div class="mb-2 flex flex-wrap items-center justify-between gap-3">
+                <h3 class="serif text-2xl font-bold">广东财经大学 广播电视编导</h3>
+                <span class="text-xs uppercase tracking-[.2em] text-muted">2025.09 - 至今</span>
+              </div>
+              <p class="text-sm leading-7 text-neutral-300">系统学习剧本创作、导演基础、微电影创作、视听语言、电影史、新媒体传播和短视频表达，形成了较完整的影像叙事和内容分析能力。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="archive" class="border-t border-white/5 px-5 py-16 md:px-10 md:py-24">
+      <div class="mx-auto max-w-7xl">
+        <div class="reveal mb-10 text-center">
+          <div class="chip mb-5">Archive Entry</div>
+          <h2 class="serif text-5xl font-bold italic text-sand md:text-7xl">更多作品入口</h2>
+        </div>
+        <div class="grid gap-5 md:grid-cols-3">
+          <a href="https://www.xinpianchang.com/u14208398" target="_blank" rel="noreferrer" class="archive-card glass reveal rounded-[2rem] p-7 text-center">
+            <div class="mb-5 text-[10px] uppercase tracking-[.38em] text-[#6fd1ff]">Video Dossier</div>
+            <div class="serif text-3xl font-bold text-white">新片场作品</div>
+            <div class="mt-4 text-[10px] uppercase tracking-[.26em] text-muted">Open Project Page</div>
+          </a>
+          <a href="https://eossi-protfolio.my.canvasite.cn/2025" target="_blank" rel="noreferrer" class="archive-card glass reveal rounded-[2rem] p-7 text-center">
+            <div class="mb-5 text-[10px] uppercase tracking-[.38em] text-[#6fd1ff]">Photo Archive</div>
+            <div class="serif text-3xl font-bold text-white">摄影作品集</div>
+            <div class="mt-4 text-[10px] uppercase tracking-[.26em] text-muted">2025 Portfolio</div>
+          </a>
+          <a href="https://eossi-protfolio.my.canvasite.cn/dahd0j-s9o" target="_blank" rel="noreferrer" class="archive-card glass reveal rounded-[2rem] p-7 text-center">
+            <div class="mb-5 text-[10px] uppercase tracking-[.38em] text-[#6fd1ff]">Art Archive</div>
+            <div class="serif text-3xl font-bold text-white">美术作品集</div>
+            <div class="mt-4 text-[10px] uppercase tracking-[.26em] text-muted">Visual Portfolio</div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="border-t border-white/5 px-5 py-16 md:px-10 md:py-24">
+      <div class="glass reveal mx-auto max-w-7xl rounded-[2rem] p-6 md:p-10">
+        <div class="grid gap-8 md:grid-cols-12 md:items-end">
+          <div class="md:col-span-7">
+            <div class="chip mb-5">Contact</div>
+            <h2 class="serif text-4xl font-bold leading-tight text-sand md:text-6xl">期待加入<br>AIGC 视频团队</h2>
+            <p class="mt-5 max-w-2xl text-sm leading-7 text-neutral-300">我适合需要“内容理解 + 视觉执行 + AI 辅助效率”的岗位。既能参与创意和脚本，也能进入剪辑、调色、包装和交付环节，把想法真正推进成作品。</p>
+          </div>
+          <div class="grid gap-3 text-sm md:col-span-5">
+            <a href="tel:13169027725" class="rounded-[1.75rem] border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"><span class="mb-2 block text-[10px] uppercase tracking-[.25em] text-muted">Phone</span>131-6902-7725</a>
+            <a href="mailto:1357274498@qq.com" class="rounded-[1.75rem] border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"><span class="mb-2 block text-[10px] uppercase tracking-[.25em] text-muted">Email</span>1357274498@qq.com</a>
+            <div class="rounded-[1.75rem] border border-white/10 bg-white/5 p-4"><span class="mb-2 block text-[10px] uppercase tracking-[.25em] text-muted">Wechat</span>GINadaze</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4 backdrop-blur-md">
+    <button id="closeModal" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10" aria-label="关闭">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="glass max-h-[88vh] w-full max-w-6xl overflow-hidden rounded-[2rem]">
+      <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_.9fr]">
+        <div class="film-card min-h-[300px]">
+          <img id="modalImg" src="" alt="" class="h-full min-h-[300px] w-full object-cover">
+        </div>
+        <div class="overflow-y-auto p-6 md:p-8">
+          <div id="modalCategory" class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted"></div>
+          <h3 id="modalTitle" class="serif text-3xl font-bold text-sand md:text-4xl"></h3>
+          <p id="modalRole" class="mt-4 text-sm text-white"></p>
+          <p id="modalDesc" class="mt-5 text-sm leading-7 text-neutral-300"></p>
+          <div class="mt-6 rounded-[1.75rem] border border-white/10 bg-black/30 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.28em] text-muted">岗位关联</div>
+            <p id="modalFit" class="text-sm leading-7 text-neutral-300"></p>
+          </div>
+          <div class="mt-6 rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.28em] text-muted">可迁移能力</div>
+            <p id="modalTags" class="text-sm leading-7 text-neutral-300"></p>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <!-- ==================== 🎬 隐藏版：导演控制面板 (Live Config Panel) ==================== -->
-    <div id="config-panel-btn" class="fixed bottom-6 right-6 z-[1000] bg-red-600 hover:bg-red-700 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl cursor-pointer hover-target transition-transform hover:scale-105" title="点击打开作品配置器">
-        <i class="fa-solid fa-sliders text-lg"></i>
+  <!-- Workflow Detail Modal -->
+  <div id="workflowModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4 backdrop-blur-md">
+    <button id="closeWorkflowModal" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10" aria-label="关闭">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="glass max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] p-6 md:p-10">
+      <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">AIGC Workflow</div>
+      <h2 class="serif text-3xl font-bold leading-tight text-sand md:text-4xl">从概念到成片的工作流拆解</h2>
+      <p class="mt-4 text-sm leading-7 text-neutral-300">以"在爱中的不安全感与自我怀疑"为核心意象，建立一条偏情绪化、低饱和、带潮湿感的 AI MV 视觉路线。重点不是炫技，而是让生成画面服务同一条情绪叙事。</p>
+      <div class="mt-6 grid gap-3">
+        <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+          <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">为什么做</div>
+          <p class="text-sm leading-7 text-neutral-300">通过"在爱中的不安全感与自我怀疑"表达压抑、孤独、失重与自我下沉的情绪体验。</p>
+        </div>
+        <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+          <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">风格参考</div>
+          <p class="text-sm leading-7 text-neutral-300">王家卫、Moonlight、胶片颗粒、低照度蓝绿色调、缓慢镜头运动。</p>
+        </div>
+        <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+          <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">情绪关键词</div>
+          <p class="text-sm leading-7 text-neutral-300">潮湿、封闭、漂浮、低语、回声、冷光、孤身。</p>
+        </div>
+      </div>
+      <div class="mt-8 border-t border-white/10 pt-6">
+        <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">Production Chain</div>
+        <div class="grid gap-3 md:grid-cols-5">
+          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">01 ChatGPT</div>
+            <p class="text-sm leading-7 text-neutral-300">整理世界观、歌词意象、镜头情绪和叙事骨架。</p>
+          </article>
+          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">02 Midjourney</div>
+            <p class="text-sm leading-7 text-neutral-300">探索角色、空间、服装和整体风格参考。</p>
+          </article>
+          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">03 即梦 / TapNow</div>
+            <p class="text-sm leading-7 text-neutral-300">生成关键镜头，测试动作和氛围可行性。</p>
+          </article>
+          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">04 剪辑</div>
+            <p class="text-sm leading-7 text-neutral-300">控制节奏、镜头连接和情绪起伏。</p>
+          </article>
+          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">05 DaVinci</div>
+            <p class="text-sm leading-7 text-neutral-300">统一色彩、暗部层次和整支片子的视觉完成度。</p>
+          </article>
+        </div>
+      </div>
+      <div class="mt-8 border-t border-white/10 pt-6">
+        <div class="mb-5 text-[10px] uppercase tracking-[.28em] text-muted">Problems I Can Solve</div>
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <h4 class="serif mb-3 text-xl font-bold text-white">角色一致性</h4>
+            <p class="text-sm leading-7 text-neutral-300">通过固定服装、镜头距离、面部关键词和光线策略，保证人物不会在生成中失真。</p>
+          </article>
+          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <h4 class="serif mb-3 text-xl font-bold text-white">镜头连续性</h4>
+            <p class="text-sm leading-7 text-neutral-300">先拆出镜头运动方向和情绪重心，再靠剪辑建立空间衔接感。</p>
+          </article>
+          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <h4 class="serif mb-3 text-xl font-bold text-white">动作崩坏修正</h4>
+            <p class="text-sm leading-7 text-neutral-300">优先选择更稳的动作设计，必要时换景别、补过渡镜头或缩短镜头时长。</p>
+          </article>
+          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <h4 class="serif mb-3 text-xl font-bold text-white">风格漂移</h4>
+            <p class="text-sm leading-7 text-neutral-300">建立统一的参考池和色彩边界，后期再做二次风格收束。</p>
+          </article>
+          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <h4 class="serif mb-3 text-xl font-bold text-white">画面质感不足</h4>
+            <p class="text-sm leading-7 text-neutral-300">通过对比度、颗粒、暗部细节和节奏控制提升"像一支作品"的完成感。</p>
+          </article>
+          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <h4 class="serif mb-3 text-xl font-bold text-white">叙事过散</h4>
+            <p class="text-sm leading-7 text-neutral-300">把抽象情绪拆成段落，让每个镜头都服务同一个主题方向。</p>
+          </article>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="config-panel" class="fixed top-0 right-0 h-screen w-full md:w-[450px] bg-[#0c0c0c] border-l border-neutral-800 z-[99999] shadow-2xl p-6 hidden flex-col transition-all duration-300 select-text overflow-y-auto">
-        <div class="flex justify-between items-center border-b border-neutral-800 pb-4 mb-4">
-            <div>
-                <h3 class="text-lg font-bold text-white flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-red-500"></i> AIGC 导演控制台</h3>
-                <p class="text-[10px] text-neutral-500 uppercase tracking-widest">Real-time portfolio builder</p>
+  <script>
+    const projects = [
+      {
+        title:"AI MV《Who Knows》",
+        year:"2026",
+        category:"AI MV / 完整AIGC流程 / 情绪叙事",
+        role:"导演、AI内容生成、剪辑、调色、成片包装",
+        image:"./who_knows_cover.jpg",
+        desc:"一支由AI完整驱动的音乐短片，围绕\"在爱中的不安全感与自我怀疑\"核心意象展开情绪叙事。使用 ChatGPT 完成世界观与分镜整理，Midjourney 探索视觉风格，即梦与 TapNow 生成关键镜头，Premiere 完成剪辑节奏把控，DaVinci 统一色彩与画面质感。",
+        fit:"这个项目完整覆盖了从概念到成片的AIGC流程，体现了我用AI工具辅助叙事判断、视觉统一和后期交付的实际能力，能直接迁移到品牌样片和创意短片场景。",
+        tags:"AI工作流 / 情绪叙事 / 视觉统一 / 成片完成度"
+      },
+      {
+        title:"短片《重回1980》",
+        year:"2025",
+        category:"AI短片 / 导演编剧 / 完整AIGC流程",
+        role:"导演、编剧、AI内容生成、后期制作",
+        image:"./huichong1980_cover.jpg",
+        desc:"一部由AI全流程驱动的剧情短片，围绕80年代怀旧与情感追寻展开叙事。从剧本构思到分镜拆解、视觉风格探索、关键镜头生成，再到剪辑节奏把控与色彩统一，完整实践了AI辅助下的导演与编剧闭环。",
+        fit:"这个项目展现了我从剧本端介入、用AI工具贯穿制作全流程的能力——从叙事构思到画面落地，适合需要同时承担创意和执行的AIGC岗位。",
+        tags:"AI全流程 / 导演编剧 / 怀旧叙事 / 风格统一"
+      }
+    ];
+
+    const grid = document.getElementById("projectGrid");
+    const modal = document.getElementById("modal");
+    const modalImg = document.getElementById("modalImg");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalCategory = document.getElementById("modalCategory");
+    const modalRole = document.getElementById("modalRole");
+    const modalDesc = document.getElementById("modalDesc");
+    const modalFit = document.getElementById("modalFit");
+    const modalTags = document.getElementById("modalTags");
+    const sidebarTitle = document.getElementById("sidebarTitle");
+    const sidebarCategory = document.getElementById("sidebarCategory");
+    const sidebarRole = document.getElementById("sidebarRole");
+    const sidebarDesc = document.getElementById("sidebarDesc");
+    const sidebarFit = document.getElementById("sidebarFit");
+    const sidebarList = document.getElementById("sidebarList");
+
+    function openProject(index){
+      const item = projects[index];
+      modalImg.src = item.image;
+      modalImg.alt = item.title;
+      modalTitle.textContent = item.title;
+      modalCategory.textContent = item.category;
+      modalRole.textContent = item.role;
+      modalDesc.textContent = item.desc;
+      modalFit.textContent = item.fit;
+      modalTags.textContent = item.tags;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeProject(){
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+
+    function setActiveProject(index){
+      const item = projects[index];
+      if(!item) return;
+
+      sidebarTitle.textContent = item.title;
+      sidebarCategory.textContent = item.category;
+      sidebarRole.textContent = item.role;
+      sidebarDesc.textContent = item.desc;
+      sidebarFit.textContent = item.fit;
+
+      document.querySelectorAll(".work-poster").forEach((card, cardIndex)=>{
+        card.classList.toggle("is-active", cardIndex === index);
+      });
+      document.querySelectorAll(".works-sidebar-chip").forEach((chip, chipIndex)=>{
+        chip.classList.toggle("is-active", chipIndex === index);
+      });
+    }
+
+    projects.forEach((item,index)=>{
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "work-poster reveal";
+      button.dataset.index = String(index);
+      button.innerHTML = `
+        <img src="${item.image}" alt="${item.title}">
+        <div class="work-poster-body">
+          <div class="work-poster-year">${item.year} / ${item.category}</div>
+          <div>
+            <div class="work-poster-title">${item.title}</div>
+            <div class="work-poster-meta mt-5">
+              <span>Role / ${item.role}</span>
+              <span>Type / ${item.tags}</span>
             </div>
-            <button id="config-close" class="text-neutral-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
+        ${index===0?'<button class="work-detail-btn" data-action="workflow"><i class="fa-solid fa-chevron-right"></i> 查看工作流</button>':''}
+      `;
+      button.addEventListener("mouseenter",()=>setActiveProject(index));
+      button.addEventListener("focus",()=>setActiveProject(index));
+      button.addEventListener("click",(e)=>{
+        if(e.target.closest('.work-detail-btn')) return;
+        if(index===0) window.open("https://www.xinpianchang.com/a13717449?from=UserProfile","_blank");
+        else if(index===1) window.open("https://www.xinpianchang.com/a13723771?show_note=true","_blank");
+        else openProject(index);
+      });
+      button.querySelector('.work-detail-btn')?.addEventListener('click',(e)=>{
+        e.stopPropagation();
+        document.getElementById('workflowModal').classList.remove('hidden');
+        document.getElementById('workflowModal').classList.add('flex');
+        document.body.style.overflow='hidden';
+      });
+      grid.appendChild(button);
 
-        <!-- 案例编辑选单 -->
-        <div class="space-y-4 flex-1">
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">选择你要编辑的卡片位置</label>
-                <select id="edit-index" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-                    <option value="0">位置 1 (当前：走慢点也没关系)</option>
-                    <option value="1">位置 2 (当前：可见性之后的可见性)</option>
-                    <option value="2">位置 3 (当前：白幕后的谢幕礼)</option>
-                </select>
-            </div>
+      const chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "works-sidebar-chip";
+      chip.innerHTML = `<span>${String(index + 1).padStart(2,"0")}</span><span>${item.title}</span>`;
+      chip.addEventListener("click",()=>{
+        setActiveProject(index);
+        button.scrollIntoView({behavior:"smooth", block:"center"});
+      });
+      sidebarList.appendChild(chip);
+    });
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">作品标题 (Title)</label>
-                <input type="text" id="edit-title" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-            </div>
+    setActiveProject(0);
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">封面图片网址 (Cover Image URL)</label>
-                <input type="text" id="edit-cover" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
-                <span class="text-[10px] text-neutral-600 mt-0.5 block">可使用 Unsplash 图片网址，或你本人的图片托管直链</span>
-            </div>
+    document.getElementById("closeModal").addEventListener("click",closeProject);
+    modal.addEventListener("click",(event)=>{ if(event.target === modal) closeProject(); });
+    document.addEventListener("keydown",(event)=>{ if(event.key === "Escape") { closeProject(); closeWorkflow(); } });
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">视频播放类型 (Video Type)</label>
-                <div class="flex gap-4">
-                    <label class="inline-flex items-center text-xs text-neutral-300">
-                        <input type="radio" name="video-type" value="mp4" checked class="mr-1 accent-red-600"> 原生 MP4 链接
-                    </label>
-                    <label class="inline-flex items-center text-xs text-neutral-300">
-                        <input type="radio" name="video-type" value="iframe" class="mr-1 accent-red-600"> B站/YouTube 嵌入链接
-                    </label>
-                </div>
-            </div>
+    const workflowModal = document.getElementById("workflowModal");
+    function closeWorkflow(){
+      workflowModal.classList.add("hidden");
+      workflowModal.classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+    document.getElementById("closeWorkflowModal").addEventListener("click",closeWorkflow);
+    workflowModal.addEventListener("click",(event)=>{ if(event.target === workflowModal) closeWorkflow(); });
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">视频直链/嵌入链接 (Video Source URL)</label>
-                <input type="text" id="edit-src" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500">
-                <span class="text-[10px] text-neutral-600 mt-0.5 block">若是B站，请直接填写：https://player.bilibili.com/... 样式链接</span>
-            </div>
+    document.getElementById("menuBtn").addEventListener("click",()=>{
+      document.getElementById("mobileMenu").classList.toggle("hidden");
+    });
+    document.querySelectorAll("#mobileMenu a").forEach(link=>{
+      link.addEventListener("click",()=>document.getElementById("mobileMenu").classList.add("hidden"));
+    });
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">AIGC 生成工具链 (AI Tools)</label>
-                <input type="text" id="edit-tools" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500">
-            </div>
+    // ===== SCROLL VISUAL EFFECTS ONLY =====
+    // 背景视频现在独立循环播放（autoplay loop），不与滚动同步
+    // 这段 code 只驱动 CSS 视觉特效（进度条、星空、光环）
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">核心 AI 提示词 (Prompt)</label>
-                <textarea id="edit-prompt" rows="3" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-mono"></textarea>
-            </div>
+    const progress = document.getElementById("progress");
 
-            <div>
-                <label class="block text-xs text-neutral-400 mb-1">工业化后期工作流 (Workflow)</label>
-                <textarea id="edit-workflow" rows="3" class="w-full bg-[#141414] border border-neutral-800 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-red-500 font-sans"></textarea>
-            </div>
-        </div>
+    function onScrollUpdate() {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const ratio = max > 0 ? (window.scrollY / max) : 0;
+      progress.style.width = `${ratio * 100}%`;
+      document.documentElement.style.setProperty("--scroll-depth", ratio.toFixed(4));
+    }
 
-        <!-- 功能操作区 -->
-        <div class="border-t border-neutral-800 pt-4 mt-4 space-y-2">
-            <button id="btn-save-temp" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2.5 rounded transition-colors uppercase tracking-wider">
-                应用更改并预览效果
-            </button>
-            <button id="btn-export-code" class="w-full bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-bold text-xs py-2.5 rounded transition-colors uppercase tracking-wider flex items-center justify-center gap-1.5">
-                <i class="fa-solid fa-download"></i> 导出并复制最终部署代码
-            </button>
-        </div>
-    </div>
+    let scrollBusy = false;
+    window.addEventListener("scroll", () => {
+      if (scrollBusy) return;
+      scrollBusy = true;
+      requestAnimationFrame(() => {
+        onScrollUpdate();
+        scrollBusy = false;
+      });
+    }, { passive: true });
 
-    <!-- 页脚 -->
-    <footer class="py-8 text-center text-[10px] uppercase tracking-widest text-neutral-600 border-t border-neutral-950">
-        &copy; 2026 YUFAN.FILM. ALL RIGHTS RESERVED. POWERED BY AIGC CREATIVE WORKFLOW.
-    </footer>
+    window.addEventListener("resize", onScrollUpdate, { passive: true });
+    onScrollUpdate();
 
-    <!-- ==================== INTERACTIVE JAVASCRIPT ==================== -->
-    <script>
-        // 初始化初始展示数据，支持面试官现场修改预览
-        let portfolioData = [
-            {
-                title: "走慢点也没关系 (AI 增强重置版)",
-                cover: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=600",
-                type: "mp4",
-                src: "https://assets.mixkit.co/videos/preview/mixkit-cinematic-foggy-forest-4777-large.mp4",
-                tools: "Runway Gen-3 // Topaz Video AI // DaVinci Resolve",
-                prompt: "Cinematic documentary style, moody low-light cinematography, 35mm film grain, micro-expressions of an elder, raw emotion, slow-paced atmosphere, masterpiece --ar 16:9",
-                workflow: "1. 利用传统纪实镜头进行基底剪辑；2. 使用 Topaz AI 进行超分与画质修复；3. 运用 Runway 补帧并平滑镜头呼吸感；4. 导入达芬奇调色系统进行高密度色彩重构，还原真实底片质感。",
-                role: "Core Director",
-                subTag: "AI 增强 / 调色"
-            },
-            {
-                title: "可见性之后的可见性 (Visibility After)",
-                cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=600",
-                type: "mp4",
-                src: "https://assets.mixkit.co/videos/preview/mixkit-mysterious-pale-looking-woman-with-neon-lights-40177-large.mp4",
-                tools: "Midjourney v6 // Runway Gen-3 // After Effects // Premiere",
-                prompt: "Underground ballroom culture scene, voguing dancer under aggressive red and blue neon strip lights, high-contrast chiaroscuro, 90s DV texture, chaotic camera movement, glitch aesthetics, Stuart Hall cultural subculture vibe --v 6.0 --style raw",
-                workflow: "1. 深度研习伯明翰学派亚文化理论，提炼视觉符号；2. 运用 Midjourney 确立地下电影与高饱和霓虹基调；3. 使用 Runway 驱动舞蹈动作，保持高动态下的肢体张力；4. 在 AE 中手工加入复古 DV 噪点与故障毛刺特效，强化边缘社群政治表达。",
-                role: "AIGC Visual Essay",
-                subTag: "概念设计 / 动态生成"
-            },
-            {
-                title: "白幕后的谢幕礼",
-                cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?q=80&w=600",
-                type: "mp4",
-                src: "https://assets.mixkit.co/videos/preview/mixkit-photo-session-of-a-girl-with-red-hair-41718-large.mp4",
-                tools: "Midjourney // Kling AI // After Effects",
-                prompt: "Traditional Chaoshan funeral custom, a daughter crying behind a white cloth veil, pomegranate leaf water dripping, huge Chaozhou big drums in the blurred background, cinematic lighting, dramatic look, high emotional tension --ar 16:9",
-                workflow: "1. 提取潮汕传统民俗语境作为核心视觉符号；2. 借助 Midjourney 生成极具本土化电影置景美术深度的静帧；3. 用可灵 AI (Kling) 进行高保真视频流驱动，精准控制泪水、水滴等细腻物理动态；4. 后期强化传统民俗叙事的情感调校。",
-                role: "Narrative Script",
-                subTag: "美术指导 / AIGC置景"
-            }
-        ];
+    const heroDropTrigger = document.getElementById("heroDropTrigger");
+    const heroPassShell = document.getElementById("heroPassShell");
+    const passTeaser = document.getElementById("passTeaser");
+    const badge = document.getElementById("idBadge");
+    if(badge){
+      const badgeState = {
+        raf:0,
+        y:0,
+        vy:0,
+        angle:0,
+        va:0,
+        phase:"idle"
+      };
 
-        // 渲染作品卡片列表
-        function renderCards() {
-            const container = document.getElementById('drag-container');
-            container.innerHTML = '';
-            
-            portfolioData.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = "min-w-[320px] md:min-w-[460px] bg-[#121212] border border-neutral-800 rounded-lg overflow-hidden group flex-shrink-0 transition-all duration-500 hover:border-neutral-600 hover-target";
-                card.style.cursor = "pointer";
-                
-                card.innerHTML = `
-                    <div class="aspect-video w-full bg-neutral-900 relative overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
-                        <div class="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-700 ease-out" style="background-image: url('${item.cover}');"></div>
-                        <div class="absolute inset-0 flex items-center justify-center z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40">
-                            <div class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center text-lg pl-1 shadow-2xl transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                                <i class="fa-solid fa-play"></i>
-                            </div>
-                        </div>
-                        <div class="absolute top-4 left-4 flex gap-2 z-20">
-                            <span class="bg-red-600 text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded">${item.role}</span>
-                            <span class="bg-black/80 border border-neutral-700 text-[9px] text-neutral-300 px-2 py-0.5 rounded">${item.subTag}</span>
-                        </div>
-                    </div>
-                    <div class="p-6">
-                        <div class="text-[10px] text-red-500 font-mono tracking-widest uppercase mb-1">Tools: ${item.tools.split(' // ')[0]}</div>
-                        <h3 class="text-lg font-bold text-white mb-2 tracking-wide group-hover:text-red-500 transition-colors">${item.title}</h3>
-                        <p class="text-xs text-neutral-400 font-light line-clamp-2 leading-relaxed">工具链：${item.tools}</p>
-                    </div>
-                `;
-                
-                // 绑定点击弹出 Modal
-                card.addEventListener('click', () => {
-                    openModal(item);
-                });
-                container.appendChild(card);
-            });
+      const renderBadge = ()=>{
+        badge.style.setProperty("--badge-y", `${badgeState.y.toFixed(2)}px`);
+        badge.style.setProperty("--badge-r", `${badgeState.angle.toFixed(2)}deg`);
+      };
 
-            // 重新绑定指针悬停类
-            document.querySelectorAll('.hover-target').forEach(item => {
-                item.addEventListener('mouseenter', () => document.body.classList.add('hover-active'));
-                item.addEventListener('mouseleave', () => document.body.classList.remove('hover-active'));
-            });
+      const stopBadge = ()=>{
+        if(badgeState.raf){
+          cancelAnimationFrame(badgeState.raf);
+          badgeState.raf = 0;
         }
+        badgeState.phase = "idle";
+      };
 
-        // 唤醒 Modal
-        const modal = document.getElementById('video-modal');
-        const videoBody = document.getElementById('video-body');
-        const modalTitle = document.getElementById('modal-title');
-        const modalTools = document.getElementById('modal-tools');
-        const modalPrompt = document.getElementById('modal-prompt');
-        const modalWorkflow = document.getElementById('modal-workflow');
+      const runBadgeDrop = ()=>{
+        stopBadge();
+        badgeState.phase = "drop";
+        badgeState.y = -18;
+        badgeState.vy = 0;
+        badgeState.angle = -4;
+        badgeState.va = 0;
 
-        function openModal(item) {
-            modalTitle.innerText = item.title;
-            modalTools.innerText = item.tools;
-            modalPrompt.innerText = item.prompt;
-            modalWorkflow.innerText = item.workflow;
+        const gravity = 0.92;
+        const floor = 28;
+        const bounce = -0.52;
+        const spring = 0.065;
+        const damping = 0.92;
+        const angularSpring = 0.048;
+        const angularDamping = 0.94;
 
-            if (item.type === 'mp4') {
-                videoBody.innerHTML = `<video src="${item.src}" controls autoplay class="w-full h-full object-cover"></video>`;
-            } else {
-                videoBody.innerHTML = `<iframe src="${item.src}" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true" class="w-full h-full"></iframe>`;
+        const tick = ()=>{
+          if(badgeState.phase === "drop"){
+            badgeState.vy += gravity;
+            badgeState.y += badgeState.vy;
+            badgeState.va += 0.16;
+            badgeState.angle += badgeState.va;
+
+            if(badgeState.y >= floor){
+              badgeState.y = floor;
+              badgeState.vy *= bounce;
+              badgeState.va *= -0.72;
+              badgeState.phase = "settle";
             }
+          } else if(badgeState.phase === "settle"){
+            badgeState.vy += (-badgeState.y * spring);
+            badgeState.vy *= damping;
+            badgeState.y += badgeState.vy;
 
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.add('opacity-100'), 10);
-        }
+            badgeState.va += (-badgeState.angle * angularSpring);
+            badgeState.va *= angularDamping;
+            badgeState.angle += badgeState.va;
 
-        const closeModal = () => {
-            modal.classList.remove('opacity-100');
-            setTimeout(() => { modal.classList.add('hidden'); videoBody.innerHTML = ''; }, 300);
+            if(Math.abs(badgeState.y) < 0.16 && Math.abs(badgeState.vy) < 0.16 && Math.abs(badgeState.angle) < 0.14 && Math.abs(badgeState.va) < 0.14){
+              badgeState.y = 0;
+              badgeState.vy = 0;
+              badgeState.angle = 0;
+              badgeState.va = 0;
+              renderBadge();
+              stopBadge();
+              return;
+            }
+          }
+
+          renderBadge();
+          badgeState.raf = requestAnimationFrame(tick);
         };
-        document.getElementById('modal-close').addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
-        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
 
-        // 1. 消除加载动画
-        window.addEventListener('load', () => {
-            const intro = document.getElementById('intro-screen');
-            setTimeout(() => {
-                intro.classList.add('opacity-0');
-                setTimeout(() => intro.remove(), 1000);
-            }, 800); 
-            renderCards();
-            loadEditForm(0);
-        });
+        badgeState.raf = requestAnimationFrame(tick);
+      };
 
-        // 2. 磁性鼠标跟随
-        const cursor = document.getElementById('cursor');
-        const follower = document.getElementById('cursor-follower');
-        if (cursor && follower) {
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-                setTimeout(() => {
-                    follower.style.left = e.clientX + 'px';
-                    follower.style.top = e.clientY + 'px';
-                }, 30);
-            });
+      renderBadge();
+      const triggerDrop = ()=>{
+        heroPassShell.classList.add("is-visible");
+        if(passTeaser){
+          passTeaser.style.opacity = "0";
+          passTeaser.style.pointerEvents = "none";
         }
+        runBadgeDrop();
+      };
 
-        // 3. 拖拽与横向滚动
-        const slider = document.getElementById('drag-container');
-        let isDown = false; let startX; let scrollLeft;
-        slider.addEventListener('mousedown', (e) => {
-            isDown = true; slider.classList.replace('cursor-grab', 'cursor-grabbing');
-            startX = e.pageX - slider.offsetLeft; scrollLeft = slider.scrollLeft;
-        });
-        slider.addEventListener('mouseleave', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
-        slider.addEventListener('mouseup', () => { isDown = false; slider.classList.replace('cursor-grabbing', 'cursor-grab'); });
-        slider.addEventListener('mousemove', (e) => {
-            if(!isDown) return; e.preventDefault();
-            const x = e.pageX - slider.offsetLeft;
-            const walk = (x - startX) * 1.8; slider.scrollLeft = scrollLeft - walk;
-        });
-        slider.addEventListener('wheel', (e) => { if (e.deltaY !== 0) { e.preventDefault(); slider.scrollLeft += e.deltaY; } });
+      if(heroDropTrigger){
+        heroDropTrigger.addEventListener("click", triggerDrop);
+      }
+      if(passTeaser){
+        passTeaser.addEventListener("click", triggerDrop);
+      }
+      badge.addEventListener("click", triggerDrop);
+    }
 
-
-        // ==================== 🎬 控制面板底层配置逻辑 ====================
-        const configBtn = document.getElementById('config-panel-btn');
-        const configPanel = document.getElementById('config-panel');
-        const configClose = document.getElementById('config-close');
-        const editIndex = document.getElementById('edit-index');
-
-        configBtn.addEventListener('click', () => configPanel.classList.toggle('hidden'));
-        configClose.addEventListener('click', () => configPanel.classList.add('hidden'));
-
-        // 载入所选卡片数据到表单
-        function loadEditForm(idx) {
-            const item = portfolioData[idx];
-            document.getElementById('edit-title').value = item.title;
-            document.getElementById('edit-cover').value = item.cover;
-            document.getElementById('edit-src').value = item.src;
-            document.getElementById('edit-tools').value = item.tools;
-            document.getElementById('edit-prompt').value = item.prompt;
-            document.getElementById('edit-workflow').value = item.workflow;
-            
-            const radios = document.getElementsByName('video-type');
-            radios.forEach(r => {
-                if(r.value === item.type) r.checked = true;
-            });
+    const observer = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.classList.add("in-view");
         }
-
-        editIndex.addEventListener('change', (e) => {
-            loadEditForm(e.target.value);
-        });
-
-        // 应用修改并刷新预览
-        document.getElementById('btn-save-temp').addEventListener('click', () => {
-            const idx = parseInt(editIndex.value);
-            const typeValue = document.querySelector('input[name="video-type"]:checked').value;
-            
-            portfolioData[idx].title = document.getElementById('edit-title').value;
-            portfolioData[idx].cover = document.getElementById('edit-cover').value;
-            portfolioData[idx].src = document.getElementById('edit-src').value;
-            portfolioData[idx].type = typeValue;
-            portfolioData[idx].tools = document.getElementById('edit-tools').value;
-            portfolioData[idx].prompt = document.getElementById('edit-prompt').value;
-            portfolioData[idx].workflow = document.getElementById('edit-workflow').value;
-            
-            renderCards();
-            
-            // 弹出轻量提示框
-            const tip = document.createElement('div');
-            tip.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-red-600 text-white text-xs px-6 py-3 rounded shadow-2xl z-[100000] font-bold uppercase tracking-widest animate-bounce";
-            tip.innerText = "预览更新成功！可以点击作品查看新数据。";
-            document.body.appendChild(tip);
-            setTimeout(() => tip.remove(), 2500);
-        });
-
-        // 导出最终打包代码
-        document.getElementById('btn-export-code').addEventListener('click', () => {
-            // 生成用于导出的干净代码内容
-            const rawTemplate = document.documentElement.outerHTML;
-            // 复制到系统剪贴板 (优先兼容 Iframe 环境下的 execCommand)
-            const el = document.createElement('textarea');
-            el.value = rawTemplate;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-
-            const tip = document.createElement('div');
-            tip.className = "fixed top-24 left-1/2 -translate-x-1/2 bg-green-600 text-white text-xs px-6 py-3 rounded shadow-2xl z-[100000] font-bold uppercase tracking-widest";
-            tip.innerText = "恭喜！最终整站 HTML 代码已完美复制到剪贴板。可以直接部署上线！";
-            document.body.appendChild(tip);
-            setTimeout(() => tip.remove(), 4000);
-        });
-    </script>
+      });
+    },{threshold:.14});
+    document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+  </script>
 </body>
 </html>
-
-
-### 🎬 如何使用这套实时预览系统？
-
-1. **点击预览：** 请立刻点击右侧窗口的 **`Preview`** 按钮，就能直接在浏览器中打开属于你的暗黑电影级 AIGC 视觉作品集！
-2. **唤醒后台：** 鼠标滑动到页面右下角，会看到一个带**红色设置齿轮**的悬浮小圆圈。点击它，就可以滑出**导演控制面板**！
-3. **录入你自己的视频：**
-   * 在控制台，挑选你要修改的作品位置（比如：1号作品）。
-   * 填入该视频的标题、你写过的 Midjourney 或 Runway 的**核心提示词**、你的**视频处理流（Workflow）**。
-   * 点击 **“应用更改并预览效果”**，网页上对应的作品就会**实时完成替换**。点击作品，就能看到完全属于你的专业拆解画布！
-4. **一键打包带走：** 当你把 3 个作品全部替换成你自己的数据后，点击控制台最下方的 **“导出并复制最终部署代码”**，整套代码将自动复制。之后你只需要把它保存为一个文本并更名为 `index.html` 即可永久使用。
