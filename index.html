@@ -1502,11 +1502,7 @@
     modalPlayBtn.addEventListener("click",function(){
       const videoUrl = this.dataset.video;
       if(!videoUrl) return;
-      modalIframe.src = videoUrl;
-      modalIframe.classList.remove("hidden");
-      modalImg.style.opacity = "0";
-      modalPlayBtn.style.opacity = "0";
-      modalPlayBtn.style.pointerEvents = "none";
+      window.open(videoUrl, "_blank");
     });
 
     // Workflow modal
