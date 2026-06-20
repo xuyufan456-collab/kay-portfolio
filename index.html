@@ -292,10 +292,11 @@
     }
     .work-detail-btn{
       position:absolute;
-      top:1.8rem;
+      top:50%;
       left:1.8rem;
       right:auto;
       bottom:auto;
+      transform:translateY(-50%);
       z-index:10;
       display:inline-flex;
       align-items:center;
@@ -1267,79 +1268,97 @@
 
   <!-- Workflow Detail Modal -->
   <div id="workflowModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4 backdrop-blur-md">
-    <button id="closeWorkflowModal" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10" aria-label="关闭">
+    <button id="closeWorkflowModal" class="absolute right-5 top-5 grid h-11 w-11 place-items-center rounded-xl border border-white/10 bg-white/5 text-white transition hover:bg-white/10 z-10" aria-label="关闭">
       <i class="fa-solid fa-xmark"></i>
     </button>
     <div class="glass max-h-[88vh] w-full max-w-5xl overflow-y-auto rounded-[2rem] p-6 md:p-10">
-      <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">AIGC Workflow</div>
-      <h2 class="serif text-3xl font-bold leading-tight text-sand md:text-4xl">从概念到成片的工作流拆解</h2>
-      <p class="mt-4 text-sm leading-7 text-neutral-300">以"在爱中的不安全感与自我怀疑"为核心意象，建立一条偏情绪化、低饱和、带潮湿感的 AI MV 视觉路线。重点不是炫技，而是让生成画面服务同一条情绪叙事。</p>
-      <div class="mt-6 grid gap-3">
-        <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-          <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">为什么做</div>
-          <p class="text-sm leading-7 text-neutral-300">通过"在爱中的不安全感与自我怀疑"表达压抑、孤独、失重与自我下沉的情绪体验。</p>
+      <!-- Who Knows workflow -->
+      <div id="workflowContent0" class="workflow-content">
+        <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">AIGC Workflow</div>
+        <h2 class="serif text-3xl font-bold leading-tight text-sand md:text-4xl">从概念到成片的工作流拆解</h2>
+        <p class="mt-4 text-sm leading-7 text-neutral-300">以"在爱中的不安全感与自我怀疑"为核心意象，建立一条偏情绪化、低饱和、带潮湿感的 AI MV 视觉路线。重点不是炫技，而是让生成画面服务同一条情绪叙事。</p>
+        <div class="mt-6 grid gap-3">
+          <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">为什么做</div>
+            <p class="text-sm leading-7 text-neutral-300">通过"在爱中的不安全感与自我怀疑"表达压抑、孤独、失重与自我下沉的情绪体验。</p>
+          </div>
+          <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">风格参考</div>
+            <p class="text-sm leading-7 text-neutral-300">王家卫、Moonlight、胶片颗粒、低照度蓝绿色调、缓慢镜头运动。</p>
+          </div>
+          <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
+            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">情绪关键词</div>
+            <p class="text-sm leading-7 text-neutral-300">潮湿、封闭、漂浮、低语、回声、冷光、孤身。</p>
+          </div>
         </div>
-        <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-          <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">风格参考</div>
-          <p class="text-sm leading-7 text-neutral-300">王家卫、Moonlight、胶片颗粒、低照度蓝绿色调、缓慢镜头运动。</p>
-        </div>
-        <div class="rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-          <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-[#6fd1ff]">情绪关键词</div>
-          <p class="text-sm leading-7 text-neutral-300">潮湿、封闭、漂浮、低语、回声、冷光、孤身。</p>
+        <div class="mt-8 border-t border-white/10 pt-6">
+          <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">Production Chain</div>
+          <div class="grid gap-3 md:grid-cols-5">
+            <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+              <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">01 ChatGPT</div>
+              <p class="text-sm leading-7 text-neutral-300">整理世界观、歌词意象、镜头情绪和叙事骨架。</p>
+            </article>
+            <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+              <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">02 Midjourney</div>
+              <p class="text-sm leading-7 text-neutral-300">探索角色、空间、服装和整体风格参考。</p>
+            </article>
+            <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+              <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">03 即梦 / TapNow</div>
+              <p class="text-sm leading-7 text-neutral-300">生成关键镜头，测试动作和氛围可行性。</p>
+            </article>
+            <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+              <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">04 剪辑</div>
+              <p class="text-sm leading-7 text-neutral-300">控制节奏、镜头连接和情绪起伏。</p>
+            </article>
+            <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
+              <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">05 DaVinci</div>
+              <p class="text-sm leading-7 text-neutral-300">统一色彩、暗部层次和整支片子的视觉完成度。</p>
+            </article>
+          </div>
         </div>
       </div>
-      <div class="mt-8 border-t border-white/10 pt-6">
-        <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">Production Chain</div>
-        <div class="grid gap-3 md:grid-cols-5">
-          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
-            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">01 ChatGPT</div>
-            <p class="text-sm leading-7 text-neutral-300">整理世界观、歌词意象、镜头情绪和叙事骨架。</p>
-          </article>
-          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
-            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">02 Midjourney</div>
-            <p class="text-sm leading-7 text-neutral-300">探索角色、空间、服装和整体风格参考。</p>
-          </article>
-          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
-            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">03 即梦 / TapNow</div>
-            <p class="text-sm leading-7 text-neutral-300">生成关键镜头，测试动作和氛围可行性。</p>
-          </article>
-          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
-            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">04 剪辑</div>
-            <p class="text-sm leading-7 text-neutral-300">控制节奏、镜头连接和情绪起伏。</p>
-          </article>
-          <article class="process-card rounded-[1.75rem] border border-white/10 bg-white/5 p-4">
-            <div class="mb-2 text-[10px] uppercase tracking-[.22em] text-sand">05 DaVinci</div>
-            <p class="text-sm leading-7 text-neutral-300">统一色彩、暗部层次和整支片子的视觉完成度。</p>
-          </article>
+
+      <!-- 重回1980 workflow -->
+      <div id="workflowContent1" class="workflow-content hidden">
+        <div class="mb-4 text-[10px] uppercase tracking-[.28em] text-muted">故事梗概</div>
+        <h2 class="serif text-3xl font-bold leading-tight text-sand md:text-4xl">短片《重回1980》</h2>
+        <div class="mt-5 space-y-4 text-sm leading-7 text-neutral-300">
+          <p>2026年的失意青年林言为了逃避现实，进入了一款名为《岁月闯关者》的历史模拟游戏。</p>
+          <p>起初，他完全以冷血"玩家"的心态追求爽感，在1984年的海南利用政策漏洞倒卖汽车狂刷财富，却因宏观调控触发"因果反噬"而破产。</p>
+          <p>作为惩罚，他被系统发配到1995年接手一家濒危的国营机械厂。为了强行通关，林言采取极端的唯KPI管理，并力主将工厂贱卖给外资，但在目睹老工人们为守护中国工业底子不惜流血下岗、以及外资代表的傲慢轻视后，他被沉重的历史真实感所唤醒。</p>
+          <p>最终，林言放弃了唾手可得的通关巨款，毅然撕毁外资协议，将所有资金砸向毫无胜算的国产自主研发，导致系统判定"Game Over"。</p>
+          <p>当他一无所有地在现实世界的地铁中醒来时，却在新闻中偶然发现，正是他在游戏中那场"必输的押注"，在三十年后成功打破了西方的技术垄断，成就了国家大国重器的脊梁；这跨越时空的回响，也让原本麻木怯懦的林言，在灰暗的现实洪流中重新挺直了脊背。</p>
         </div>
-      </div>
-      <div class="mt-8 border-t border-white/10 pt-6">
-        <div class="mb-5 text-[10px] uppercase tracking-[.28em] text-muted">Problems I Can Solve</div>
-        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-            <h4 class="serif mb-3 text-xl font-bold text-white">角色一致性</h4>
-            <p class="text-sm leading-7 text-neutral-300">通过固定服装、镜头距离、面部关键词和光线策略，保证人物不会在生成中失真。</p>
-          </article>
-          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-            <h4 class="serif mb-3 text-xl font-bold text-white">镜头连续性</h4>
-            <p class="text-sm leading-7 text-neutral-300">先拆出镜头运动方向和情绪重心，再靠剪辑建立空间衔接感。</p>
-          </article>
-          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-            <h4 class="serif mb-3 text-xl font-bold text-white">动作崩坏修正</h4>
-            <p class="text-sm leading-7 text-neutral-300">优先选择更稳的动作设计，必要时换景别、补过渡镜头或缩短镜头时长。</p>
-          </article>
-          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-            <h4 class="serif mb-3 text-xl font-bold text-white">风格漂移</h4>
-            <p class="text-sm leading-7 text-neutral-300">建立统一的参考池和色彩边界，后期再做二次风格收束。</p>
-          </article>
-          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-            <h4 class="serif mb-3 text-xl font-bold text-white">画面质感不足</h4>
-            <p class="text-sm leading-7 text-neutral-300">通过对比度、颗粒、暗部细节和节奏控制提升"像一支作品"的完成感。</p>
-          </article>
-          <article class="fit-card rounded-[1.75rem] border border-white/10 bg-black/20 p-4">
-            <h4 class="serif mb-3 text-xl font-bold text-white">叙事过散</h4>
-            <p class="text-sm leading-7 text-neutral-300">把抽象情绪拆成段落，让每个镜头都服务同一个主题方向。</p>
-          </article>
+
+        <div class="mt-10 border-t border-white/10 pt-8">
+          <div class="mb-6 text-[10px] uppercase tracking-[.28em] text-muted">AI全流程工作流</div>
+
+          <div class="grid gap-5">
+            <article class="rounded-[1.75rem] border border-white/10 bg-black/20 p-5">
+              <h4 class="serif mb-3 text-xl font-bold text-white">01 · 剧本与叙事设计</h4>
+              <p class="text-sm leading-7 text-neutral-300">使用 ChatGPT 进行多轮故事生成与润色，输入核心概念："失意青年进入历史模拟游戏，经历1984海南倒卖、1995国营工厂改革，最后放弃财富选择自主研发，现实中发现该选择打破了西方垄断"。AI辅助生成人物小传、分场大纲和关键台词，人工筛选并重组叙事节奏，形成最终剧本。</p>
+            </article>
+            <article class="rounded-[1.75rem] border border-white/10 bg-black/20 p-5">
+              <h4 class="serif mb-3 text-xl font-bold text-white">02 · 视觉概念与风格定调</h4>
+              <p class="text-sm leading-7 text-neutral-300">使用 ChatGPT 和 Gemini 进行全片视觉风格探索与概念描述，输入时代特征关键词（如"1984海南潮湿街道""1995国营机械厂昏黄车间"），生成视觉设定方案。使用 即梦 生成概念图，确定"复古纪实感"为主视觉风格，确保不同年代段落视觉统一。</p>
+            </article>
+            <article class="rounded-[1.75rem] border border-white/10 bg-black/20 p-5">
+              <h4 class="serif mb-3 text-xl font-bold text-white">03 · 角色与场景生成</h4>
+              <p class="text-sm leading-7 text-neutral-300">主角林言及老工人、外资代表等角色，由 ChatGPT 生成角色设计描述，再用 豆包 生成角色设计图。场景资产使用 豆包 批量生成，通过统一描述词保持视觉一致性。</p>
+            </article>
+            <article class="rounded-[1.75rem] border border-white/10 bg-black/20 p-5">
+              <h4 class="serif mb-3 text-xl font-bold text-white">04 · 动态视频生成</h4>
+              <p class="text-sm leading-7 text-neutral-300">大部分镜头使用 即梦 和 可灵（Kling） 进行文生视频和图生视频生成。通过调整提示词与生成参数控制镜头运动、光影与情绪。</p>
+            </article>
+            <article class="rounded-[1.75rem] border border-white/10 bg-black/20 p-5">
+              <h4 class="serif mb-3 text-xl font-bold text-white">05 · 音频与配音</h4>
+              <p class="text-sm leading-7 text-neutral-300">角色对白使用 海螺AI（Liblib） 进行语音合成，为不同角色调整语气与年龄参数。背景音乐使用 Suno 生成主旋律与配乐片段，人工剪辑适配叙事节奏。环境音与音效为人工寻找并合成，保证真实感与代入感。</p>
+            </article>
+            <article class="rounded-[1.75rem] border border-white/10 bg-black/20 p-5">
+              <h4 class="serif mb-3 text-xl font-bold text-white">06 · 剪辑与后期</h4>
+              <p class="text-sm leading-7 text-neutral-300">使用 剪映 完成剪辑、调色、字幕与声画合成。AI生成素材的瑕疵通过剪映内置工具进行修复与节奏调整。</p>
+            </article>
+          </div>
         </div>
       </div>
     </div>
@@ -1451,7 +1470,7 @@
             </div>
           </div>
         </div>
-        ${index===0?'<button class="work-detail-btn" data-action="workflow"><i class="fa-solid fa-chevron-right"></i> 查看工作流</button>':''}
+        ${index===0||index===1?'<button class="work-detail-btn" data-action="workflow"><i class="fa-solid fa-chevron-right"></i> 查看工作流</button>':''}
       `;
       button.addEventListener("mouseenter",()=>setActiveProject(index));
       button.addEventListener("focus",()=>setActiveProject(index));
@@ -1463,6 +1482,10 @@
       });
       button.querySelector('.work-detail-btn')?.addEventListener('click',(e)=>{
         e.stopPropagation();
+        // Hide all workflow content, show the one for this index
+        document.querySelectorAll('.workflow-content').forEach(el=>el.classList.add('hidden'));
+        const target = document.getElementById('workflowContent' + index);
+        if(target) target.classList.remove('hidden');
         document.getElementById('workflowModal').classList.remove('hidden');
         document.getElementById('workflowModal').classList.add('flex');
         document.body.style.overflow='hidden';
@@ -1492,6 +1515,10 @@
       workflowModal.classList.add("hidden");
       workflowModal.classList.remove("flex");
       document.body.style.overflow = "";
+      // Reset to default content
+      document.querySelectorAll('.workflow-content').forEach(el=>el.classList.add('hidden'));
+      const defaultContent = document.getElementById('workflowContent0');
+      if(defaultContent) defaultContent.classList.remove('hidden');
     }
     document.getElementById("closeWorkflowModal").addEventListener("click",closeWorkflow);
     workflowModal.addEventListener("click",(event)=>{ if(event.target === workflowModal) closeWorkflow(); });
