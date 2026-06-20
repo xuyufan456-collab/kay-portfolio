@@ -1626,6 +1626,31 @@
       });
     },{threshold:.14});
     document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+
+    // ===== 视频降级：播不了就切渐变背景 =====
+    const bgVideo = document.getElementById("bgVideo");
+    const videoStage = document.querySelector(".video-stage");
+    const FALLBACK_BG = "linear-gradient(160deg, #0a0c12 0%, #040507 40%, #0f0a08 100%)";
+    function switchToFallback(){
+      if(bgVideo){
+        bgVideo.pause();
+        bgVideo.remove();
+      }
+      videoStage.style.background = FALLBACK_BG;
+      videoStage.classList.add("video-fallback");
+    }
+    // 视频加载失败 → 降级
+    bgVideo.addEventListener("error", switchToFallback);
+    // 视频卡住 8 秒还没开始播 → 降级（慢网/被拦截）
+    let playTimer = setTimeout(() => {
+      if(bgVideo.readyState < 2) switchToFallback();
+    }, 8000);
+    bgVideo.addEventListener("canplay", () => clearTimeout(playTimer));
+    // 手机端（≤767px）直接走渐变，省流量、不黑屏
+    if(window.innerWidth <= 767){
+      clearTimeout(playTimer);
+      switchToFallback();
+    }
   </script>
 </body>
 </html>
