@@ -293,18 +293,18 @@
     .work-detail-btn{
       position:absolute;
       top:1.8rem;
-      right:1.8rem;
-      left:auto;
+      left:1.8rem;
+      right:auto;
       bottom:auto;
       z-index:10;
       display:inline-flex;
       align-items:center;
       gap:.65rem;
       border:none;
-      border-right:3px solid var(--sand);
-      border-left:none;
-      background:linear-gradient(270deg, rgba(255,244,214,.2) 0%, rgba(255,244,214,.06) 70%, transparent);
-      padding:.6rem 1rem .6rem 1.2rem;
+      border-left:3px solid var(--sand);
+      border-right:none;
+      background:linear-gradient(90deg, rgba(255,244,214,.2) 0%, rgba(255,244,214,.06) 70%, transparent);
+      padding:.6rem 1.2rem .6rem 1rem;
       color:#fff5e0;
       font-size:.7rem;
       letter-spacing:.18em;
@@ -313,20 +313,20 @@
       transition:background .25s ease, padding .25s ease, gap .25s ease;
       text-shadow:0 2px 10px rgba(0,0,0,.6);
       backdrop-filter:blur(4px);
-      box-shadow:0 0 14px rgba(255,244,214,.1), inset -2px 0 8px rgba(255,244,214,.06);
+      box-shadow:0 0 14px rgba(255,244,214,.1), inset 2px 0 8px rgba(255,244,214,.06);
     }
     .work-detail-btn:hover{
-      background:linear-gradient(270deg, rgba(255,244,214,.32) 0%, rgba(255,244,214,.1) 60%, transparent);
-      padding-right:1.3rem;
+      background:linear-gradient(90deg, rgba(255,244,214,.32) 0%, rgba(255,244,214,.1) 60%, transparent);
+      padding-left:1.3rem;
       gap:.85rem;
-      box-shadow:0 0 22px rgba(255,244,214,.18), inset -2px 0 12px rgba(255,244,214,.1);
+      box-shadow:0 0 22px rgba(255,244,214,.18), inset 2px 0 12px rgba(255,244,214,.1);
     }
     .work-detail-btn i{
       font-size:.6rem;
       transition:transform .25s ease;
     }
     .work-detail-btn:hover i{
-      transform:translateX(-5px);
+      transform:translateX(5px);
     }
     .stat-number{
       font-family:"Bebas Neue","Noto Sans SC",sans-serif;
